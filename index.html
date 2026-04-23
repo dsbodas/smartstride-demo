@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#000000" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Insole — Pressure &amp; Gait</title>
+<style>
+  :root{
+    --bg:#000;
+    --surface:#121417;
+    --surface-2:#1b1e22;
+    --surface-3:#23272c;
+    --border:#2a2f35;
+    --text:#ffffff;
+    --text-2:#9aa0a6;
+    --text-3:#6b7075;
+    --accent:#00AEEF;       /* Garmin cyan */
+    --accent-2:#27E8A7;     /* teal/green */
+    --warn:#F59E0B;
+    --danger:#EF4444;
+    --s1:#3B82F6;           /* heel      — blue   */
+    --s2:#F59E0B;           /* midfoot   — amber  */
+    --s3:#EF4444;           /* forefoot  — red    */
+    --collective:#27E8A7;
+    --shadow:0 2px 12px rgba(0,0,0,.4);
+    --radius:14px;
+    --radius-sm:10px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:#0a0a0a;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow:hidden;height:100%}
+  body{display:flex;align-items:center;justify-content:center}
+
+  /* Phone frame (desktop) + fullscreen (mobile) */
+  .app{
+    position:relative;
+    width:100%;
+    max-width:430px;
+    height:100vh;
+    max-height:100vh;
+    background:var(--bg);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  @media (min-width:760px){
+    body{background:radial-gradient(ellipse at top, #1a1f27 0%, #050608 60%)}
+    .app{
+      max-width:400px;
+      height:860px;
+      max-height:92vh;
+      border-radius:44px;
+      border:10px solid #1a1d21;
+      box-shadow:0 30px 80px rgba(0,0,0,.7), 0 0 0 1px #0a0c0e inset;
+      overflow:hidden;
+    }
+    .app::before{
+      content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+      width:130px;height:28px;background:#000;border-radius:0 0 18px 18px;z-index:100;
+    }
+  }
+
+  /* Top status/header */
+  .app-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 20px 10px;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,#0e1114 0%,var(--bg) 100%);
+    z-index:3;
+  }
+  .app-header .title{font-size:18px;font-weight:600;letter-spacing:.2px}
+  .app-header .title small{display:block;font-weight:400;font-size:11px;color:var(--text-2);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+  .live-dot{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-2);font-weight:500;text-transform:uppercase;letter-spacing:.6px}
+  .live-dot::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 0 rgba(239,68,68,.5);animation:pulse 1.5s infinite}
+  .live-dot.paused::before{background:var(--text-3);animation:none}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}70%{box-shadow:0 0 0 10px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+
+  /* Main / screens */
+  .app-main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+  .app-main::-webkit-scrollbar{width:0}
+  .screen{display:none;padding:16px 16px 24px;animation:fade .25s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* Cards */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+  .card-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .card-title h3{margin:0;font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-2)}
+  .card-title .tag{font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px}
+
+  /* Dashboard hero */
+  .hero{
+    background:
+      radial-gradient(600px 200px at 100% 0%, rgba(0,174,239,.12), transparent 60%),
+      linear-gradient(145deg, #101519, #0a0c0f);
+    border:1px solid var(--border);
+    border-radius:18px;padding:18px;margin-bottom:12px;
+  }
+  .hero .greet{font-size:13px;color:var(--text-2);margin-bottom:2px}
+  .hero .user{font-size:22px;font-weight:700;margin-bottom:14px}
+  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .hero-stats .stat{background:rgba(255,255,255,.03);border-radius:var(--radius-sm);padding:10px;border:1px solid rgba(255,255,255,.04)}
+  .stat .v{font-size:20px;font-weight:700;letter-spacing:-.5px}
+  .stat .v small{font-size:11px;font-weight:500;color:var(--text-2);margin-left:2px}
+  .stat .l{font-size:10px;color:var(--text-2);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+  /* Metric pills */
+  .metrics-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+  .metric .label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-2);margin-bottom:4px}
+  .metric .value{font-size:22px;font-weight:700;letter-spacing:-.5px}
+  .metric .value small{font-size:11px;color:var(--text-2);font-weight:500;margin-left:2px}
+
+  /* Sensor chips */
+  .sensor-chips{display:flex;gap:8px;margin:8px 0 12px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--text-2)}
+  .chip .dot{width:8px;height:8px;border-radius:50%}
+  .chip .v{color:var(--text);font-weight:600;margin-left:4px}
+
+  /* Chart */
+  .chart-wrap{position:relative;width:100%}
+  .chart-wrap svg{display:block;width:100%;height:auto}
+  .y-axis-label, .x-axis-label{font-size:10px;fill:var(--text-3);font-family:inherit}
+  .axis-line{stroke:var(--border);stroke-width:1;fill:none}
+
+  /* Tabs bar */
+  .tab-bar{
+    display:grid;grid-template-columns:repeat(5,1fr);
+    border-top:1px solid var(--border);
+    background:#0b0d10;
+    padding:8px 2px calc(10px + env(safe-area-inset-bottom,0px));
+    z-index:3;
+  }
+  .tab{
+    background:none;border:0;outline:none;color:var(--text-3);
+    display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;
+    font-family:inherit;font-size:9.5px;font-weight:500;letter-spacing:.2px;
+    transition:color .18s ease;
+  }
+  .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .tab.active{color:var(--accent)}
+  .tab:active{transform:scale(.95)}
+
+  /* Sub-tabs inside Analyze */
+  .subtabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px;margin-bottom:12px}
+  .subtabs button{flex:1;background:transparent;border:0;color:var(--text-2);padding:8px 10px;border-radius:999px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+  .subtabs button.active{background:var(--accent);color:#00131a}
+  .subpane{display:none}
+  .subpane.active{display:block}
+
+  /* Foot silhouette heatmap */
+  .foot-wrap{display:flex;justify-content:center;align-items:center;padding:10px 0 6px}
+  .foot-svg{width:200px;max-width:70%}
+  .zone-circle{transition:fill .08s linear, r .08s linear}
+  .heatmap-legend{display:flex;justify-content:space-around;margin-top:10px;font-size:11px;color:var(--text-2)}
+  .heatmap-legend .zone{display:flex;align-items:center;gap:6px}
+  .heatmap-legend .swatch{width:12px;height:12px;border-radius:50%}
+
+  /* Donut */
+  .donut-wrap{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+  .donut-legend{display:flex;flex-direction:column;gap:10px}
+  .donut-legend .row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
+  .donut-legend .lbl{display:flex;align-items:center;gap:8px;color:var(--text-2)}
+  .donut-legend .swatch{width:10px;height:10px;border-radius:2px}
+  .donut-legend .pct{font-weight:700}
+
+  /* GPS / route */
+  .route-svg{width:100%;height:200px;background:#0e1114;border-radius:var(--radius-sm);border:1px solid var(--border)}
+  .route-path{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(0,174,239,.5))}
+  .route-trail{fill:none;stroke:#334050;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .route-marker{fill:var(--accent);stroke:#fff;stroke-width:2}
+  .grid-line{stroke:#1a1f25;stroke-width:1}
+
+  /* Button */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:var(--accent);color:#001823;border:0;border-radius:12px;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer;width:100%}
+  .btn.secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+  .btn:active{transform:scale(.98)}
+
+  /* Session list */
+  .session-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .session-row:last-child{border-bottom:0}
+  .session-row .icn{width:36px;height:36px;border-radius:10px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .session-row .meta{flex:1;min-width:0}
+  .session-row .n{font-size:14px;font-weight:600}
+  .session-row .s{font-size:11px;color:var(--text-2);margin-top:2px}
+  .session-row .r{font-size:13px;color:var(--text-2);text-align:right}
+  .session-row .r strong{color:var(--text);display:block;font-size:14px}
+
+  /* Controls row */
+  .ctl-row{display:flex;gap:8px;margin-bottom:12px}
+  .ctl-row .btn{flex:1}
+
+  /* Small badge */
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .badge.good{background:rgba(39,232,167,.15);color:var(--collective)}
+  .badge.warn{background:rgba(245,158,11,.15);color:var(--warn)}
+
+  /* Utility */
+  .row-between{display:flex;align-items:center;justify-content:space-between}
+  .muted{color:var(--text-2)}
+  .mt8{margin-top:8px} .mt12{margin-top:12px} .mb6{margin-bottom:6px}
+  .sep{height:1px;background:var(--border);margin:10px 0}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="title">
+      <div id="hdrTitle">Home</div>
+      <small id="hdrSub">April 23, 2026</small>
+    </div>
+    <div class="live-dot" id="liveDot">Live</div>
+  </header>
+
+  <!-- SCREENS -->
+  <main class="app-main" id="appMain">
+
+    <!-- ================== HOME ================== -->
+    <section class="screen active" id="scr-home">
+      <div class="hero">
+        <div class="greet">Good morning</div>
+        <div class="user">Dhananjay</div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="v" id="heroSteps">0</div>
+            <div class="l">Steps</div>
+          </div>
+          <div class="stat">
+            <div class="v"><span id="heroDist">0.00</span><small>km</small></div>
+            <div class="l">Distance</div>
+          </div>
+          <div class="stat">
+            <div class="v"><span id="heroLoad">0</span><small>kPa</small></div>
+            <div class="l">Peak load</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctl-row">
+        <button class="btn" id="btnStart">▶  Start session</button>
+        <button class="btn secondary" id="btnPause" style="flex:0 0 120px">⏸  Pause</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Today · Pressure summary</h3><span class="tag" id="homeTimer">00:00</span></div>
+        <div class="sensor-chips">
+          <span class="chip"><span class="dot" style="background:var(--s1)"></span>Heel <span class="v" id="chipS1">0</span></span>
+          <span class="chip"><span class="dot" style="background:var(--s2)"></span>Midfoot <span class="v" id="chipS2">0</span></span>
+          <span class="chip"><span class="dot" style="background:var(--s3)"></span>Forefoot <span class="v" id="chipS3">0</span></span>
+          <span class="chip"><span class="dot" style="background:var(--collective)"></span>Total <span class="v" id="chipSum">0</span></span>
+        </div>
+        <div class="chart-wrap">
+          <svg viewBox="0 0 360 120" id="homeChart" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Recent sessions</h3></div>
+        <div class="session-row">
+          <div class="icn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27E8A7" stroke-width="2" stroke-linecap="round"><path d="M6 3v18M18 3v18M6 9h12M6 15h12"/></svg>
+          </div>
+          <div class="meta"><div class="n">Morning walk</div><div class="s">Yesterday · 24 min</div></div>
+          <div class="r"><strong>2.1 km</strong><span>avg 4.8 km/h</span></div>
+        </div>
+        <div class="session-row">
+          <div class="icn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00AEEF" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/></svg>
+          </div>
+          <div class="meta"><div class="n">Gait check</div><div class="s">Apr 21 · 8 min</div></div>
+          <div class="r"><strong>Balanced</strong><span>peak 88 kPa</span></div>
+        </div>
+        <div class="session-row">
+          <div class="icn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+          </div>
+          <div class="meta"><div class="n">Jog test</div><div class="s">Apr 20 · 18 min</div></div>
+          <div class="r"><strong>3.4 km</strong><span>forefoot striker</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== PRESSURE ================== -->
+    <section class="screen" id="scr-pressure">
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="label">Collective · all 6</div>
+          <div class="value"><span id="mCur">0</span><small>kPa</small></div>
+        </div>
+        <div class="metric">
+          <div class="label">Peak this session</div>
+          <div class="value"><span id="mPeak">0</span><small>kPa</small></div>
+        </div>
+      </div>
+
+      <div class="sensor-chips" style="justify-content:center;margin-bottom:12px">
+        <span class="chip"><span style="display:inline-block;width:18px;height:2px;background:currentColor"></span>&nbsp;Left foot (solid)</span>
+        <span class="chip"><span style="display:inline-block;width:18px;height:2px;background:currentColor;border-top:2px dashed currentColor;background:transparent"></span>&nbsp;Right foot (dashed)</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h3>S1 · Heel</h3>
+          <span class="tag">L <span id="curL1">0</span> · R <span id="curR1">0</span> kPa</span>
+        </div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 100" id="chartS1" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h3>S2 · Midfoot</h3>
+          <span class="tag">L <span id="curL2">0</span> · R <span id="curR2">0</span> kPa</span>
+        </div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 100" id="chartS2" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h3>S3 · Forefoot</h3>
+          <span class="tag">L <span id="curL3">0</span> · R <span id="curR3">0</span> kPa</span>
+        </div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 100" id="chartS3" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h3>Collective — both feet</h3>
+          <span class="tag" id="collTag">0 kPa</span>
+        </div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 160" id="chartSum" preserveAspectRatio="none"></svg></div>
+        <div class="sensor-chips" style="margin:8px 0 0">
+          <span class="chip"><span class="dot" style="background:var(--s1)"></span>L-sum</span>
+          <span class="chip"><span class="dot" style="background:var(--s3)"></span>R-sum</span>
+          <span class="chip"><span class="dot" style="background:var(--collective)"></span>Total (6 sensors)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== ACTIVITY / GPS ================== -->
+    <section class="screen" id="scr-activity">
+      <div class="metrics-row">
+        <div class="metric">
+          <div class="label">Distance</div>
+          <div class="value"><span id="gpsDist">0.00</span><small>km</small></div>
+        </div>
+        <div class="metric">
+          <div class="label">Duration</div>
+          <div class="value" id="gpsTime">00:00</div>
+        </div>
+        <div class="metric">
+          <div class="label">Pace</div>
+          <div class="value"><span id="gpsPace">--:--</span><small>/km</small></div>
+        </div>
+        <div class="metric">
+          <div class="label">Speed</div>
+          <div class="value"><span id="gpsSpeed">0.0</span><small>km/h</small></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Route</h3><span class="tag" id="gpsAcc">GPS · fix 4m</span></div>
+        <svg viewBox="0 0 360 200" class="route-svg" id="routeSvg" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Distance vs Time</h3><span class="tag">km · min</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartDT" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Distance vs Pressure</h3><span class="tag">kPa along route</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 160" id="chartDP" preserveAspectRatio="none"></svg></div>
+        <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+          <span>avg <strong id="dpAvg" style="color:var(--text)">0</strong> kPa</span>
+          <span>peak <strong id="dpPeak" style="color:var(--text)">0</strong> kPa</span>
+          <span>at <strong id="dpPeakAt" style="color:var(--text)">0.00</strong> km</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Altitude profile</h3><span class="tag">m · over distance</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartAlt" preserveAspectRatio="none"></svg></div>
+        <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+          <span>gain <strong id="altGain" style="color:var(--text)">0</strong> m</span>
+          <span>loss <strong id="altLoss" style="color:var(--text)">0</strong> m</span>
+          <span>max <strong id="altMax" style="color:var(--text)">0</strong> m</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Heart rate vs distance</h3><span class="tag">bpm</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartHRdist" preserveAspectRatio="none"></svg></div>
+        <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+          <span>cur <strong id="hrCur2" style="color:var(--text)">0</strong></span>
+          <span>avg <strong id="hrAvg2" style="color:var(--text)">0</strong></span>
+          <span>max <strong id="hrMax2" style="color:var(--text)">0</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== BIOMECH (Accel + HR) ================== -->
+    <section class="screen" id="scr-biomech">
+      <div class="metrics-row">
+        <div class="metric"><div class="label">Heart rate</div><div class="value"><span id="hrCur">0</span><small>bpm</small></div></div>
+        <div class="metric"><div class="label">Vertical osc.</div><div class="value"><span id="voCur">0.0</span><small>cm</small></div></div>
+        <div class="metric"><div class="label">Ground contact</div><div class="value"><span id="gctCur">0</span><small>ms</small></div></div>
+        <div class="metric"><div class="label">Speed (accel)</div><div class="value"><span id="aSpeed">0.0</span><small>km/h</small></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Heart rate (live)</h3><span class="tag"><span id="hrZone">—</span></span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 120" id="chartHR" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Vertical oscillation</h3><span class="tag">avg <span id="voAvg">0.0</span> cm</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 120" id="chartVO" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Ground contact time</h3><span class="tag">per step</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 120" id="chartGCT" preserveAspectRatio="none"></svg></div>
+        <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+          <span>avg <strong id="gctAvg" style="color:var(--text)">0</strong> ms</span>
+          <span>L/R <strong id="gctLR" style="color:var(--text)">50/50</strong></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>HR cross-maps</h3><span class="tag">correlations</span></div>
+        <div class="row-between" style="gap:8px">
+          <div style="flex:1">
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">HR vs Speed</div>
+            <svg viewBox="0 0 170 120" id="scatHRspd" preserveAspectRatio="none" style="width:100%;height:auto;background:#0e1114;border-radius:8px;border:1px solid var(--border)"></svg>
+          </div>
+          <div style="flex:1">
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">HR vs Vertical Osc</div>
+            <svg viewBox="0 0 170 120" id="scatHRvo" preserveAspectRatio="none" style="width:100%;height:auto;background:#0e1114;border-radius:8px;border:1px solid var(--border)"></svg>
+          </div>
+        </div>
+        <div class="row-between mt8" style="gap:8px">
+          <div style="flex:1">
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">HR vs Altitude</div>
+            <svg viewBox="0 0 170 120" id="scatHRalt" preserveAspectRatio="none" style="width:100%;height:auto;background:#0e1114;border-radius:8px;border:1px solid var(--border)"></svg>
+          </div>
+          <div style="flex:1">
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">HR vs Distance</div>
+            <svg viewBox="0 0 170 120" id="scatHRdst" preserveAspectRatio="none" style="width:100%;height:auto;background:#0e1114;border-radius:8px;border:1px solid var(--border)"></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== ANALYZE ================== -->
+    <section class="screen" id="scr-analyze">
+      <div class="subtabs" id="analyzeTabs">
+        <button class="active" data-sub="heatmap">Heatmap</button>
+        <button data-sub="balance">Balance</button>
+        <button data-sub="gait">Gait</button>
+      </div>
+
+      <!-- HEATMAP -->
+      <div class="subpane active" id="sub-heatmap">
+        <div class="card">
+          <div class="card-title"><h3>Foot pressure map · both feet</h3><span class="tag">real-time</span></div>
+          <div class="foot-wrap" style="gap:14px;display:flex;justify-content:center;align-items:flex-start">
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--text-2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Left</div>
+              <svg viewBox="0 0 160 260" width="130" xmlns="http://www.w3.org/2000/svg" id="footL">
+                <defs>
+                  <radialGradient id="gL3"><stop offset="0%" stop-color="#EF4444" stop-opacity="1"/><stop offset="100%" stop-color="#EF4444" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="gL2"><stop offset="0%" stop-color="#F59E0B" stop-opacity="1"/><stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="gL1"><stop offset="0%" stop-color="#3B82F6" stop-opacity="1"/><stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
+                </defs>
+                <!-- Left foot silhouette (big toe on inside/right of left foot) -->
+                <path d="M80 8 C118 8 140 38 140 80 C140 112 128 138 122 158 C116 178 118 200 114 222 C110 244 96 254 80 254 C64 254 50 244 46 222 C42 200 44 178 38 158 C32 138 20 112 20 80 C20 38 42 8 80 8 Z" fill="#1a1f25" stroke="#2a2f35" stroke-width="1.5"/>
+                <circle cx="80" cy="18" r="6" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="62" cy="22" r="5" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="50" cy="32" r="4.5" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="42" cy="46" r="4" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="36" cy="60" r="3.5" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle id="glowL3" cx="80" cy="70" r="40" fill="url(#gL3)" opacity="0"/>
+                <circle id="glowL2" cx="80" cy="140" r="36" fill="url(#gL2)" opacity="0"/>
+                <circle id="glowL1" cx="80" cy="210" r="40" fill="url(#gL1)" opacity="0"/>
+                <circle id="zoneL3" class="zone-circle" cx="80" cy="70" r="18" fill="#2a2f35"/>
+                <circle id="zoneL2" class="zone-circle" cx="80" cy="140" r="14" fill="#2a2f35"/>
+                <circle id="zoneL1" class="zone-circle" cx="80" cy="210" r="18" fill="#2a2f35"/>
+                <text x="80" y="74"  text-anchor="middle" font-size="11" font-weight="700" fill="#fff" id="zTxtL3">0</text>
+                <text x="80" y="144" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" id="zTxtL2">0</text>
+                <text x="80" y="214" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" id="zTxtL1">0</text>
+              </svg>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--text-2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Right</div>
+              <svg viewBox="0 0 160 260" width="130" xmlns="http://www.w3.org/2000/svg" id="footR">
+                <defs>
+                  <radialGradient id="gR3"><stop offset="0%" stop-color="#EF4444" stop-opacity="1"/><stop offset="100%" stop-color="#EF4444" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="gR2"><stop offset="0%" stop-color="#F59E0B" stop-opacity="1"/><stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/></radialGradient>
+                  <radialGradient id="gR1"><stop offset="0%" stop-color="#3B82F6" stop-opacity="1"/><stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/></radialGradient>
+                </defs>
+                <!-- Right foot (mirrored, toes on inside/left) -->
+                <g transform="translate(160,0) scale(-1,1)">
+                  <path d="M80 8 C118 8 140 38 140 80 C140 112 128 138 122 158 C116 178 118 200 114 222 C110 244 96 254 80 254 C64 254 50 244 46 222 C42 200 44 178 38 158 C32 138 20 112 20 80 C20 38 42 8 80 8 Z" fill="#1a1f25" stroke="#2a2f35" stroke-width="1.5"/>
+                  <circle cx="80" cy="18" r="6" fill="#1a1f25" stroke="#2a2f35"/>
+                  <circle cx="62" cy="22" r="5" fill="#1a1f25" stroke="#2a2f35"/>
+                  <circle cx="50" cy="32" r="4.5" fill="#1a1f25" stroke="#2a2f35"/>
+                  <circle cx="42" cy="46" r="4" fill="#1a1f25" stroke="#2a2f35"/>
+                  <circle cx="36" cy="60" r="3.5" fill="#1a1f25" stroke="#2a2f35"/>
+                </g>
+                <circle id="glowR3" cx="80" cy="70" r="40" fill="url(#gR3)" opacity="0"/>
+                <circle id="glowR2" cx="80" cy="140" r="36" fill="url(#gR2)" opacity="0"/>
+                <circle id="glowR1" cx="80" cy="210" r="40" fill="url(#gR1)" opacity="0"/>
+                <circle id="zoneR3" class="zone-circle" cx="80" cy="70" r="18" fill="#2a2f35"/>
+                <circle id="zoneR2" class="zone-circle" cx="80" cy="140" r="14" fill="#2a2f35"/>
+                <circle id="zoneR1" class="zone-circle" cx="80" cy="210" r="18" fill="#2a2f35"/>
+                <text x="80" y="74"  text-anchor="middle" font-size="11" font-weight="700" fill="#fff" id="zTxtR3">0</text>
+                <text x="80" y="144" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" id="zTxtR2">0</text>
+                <text x="80" y="214" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" id="zTxtR1">0</text>
+              </svg>
+            </div>
+          </div>
+          <div class="heatmap-legend">
+            <div class="zone"><span class="swatch" style="background:var(--s3)"></span>Forefoot</div>
+            <div class="zone"><span class="swatch" style="background:var(--s2)"></span>Midfoot</div>
+            <div class="zone"><span class="swatch" style="background:var(--s1)"></span>Heel</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BALANCE -->
+      <div class="subpane" id="sub-balance">
+        <div class="card">
+          <div class="card-title"><h3>Weight distribution</h3><span class="tag">session avg</span></div>
+          <div class="donut-wrap">
+            <svg viewBox="0 0 160 160" width="150" height="150" id="donutSvg"></svg>
+            <div class="donut-legend">
+              <div class="row"><span class="lbl"><span class="swatch" style="background:var(--s1)"></span>Heel</span><span class="pct" id="pctS1">0%</span></div>
+              <div class="row"><span class="lbl"><span class="swatch" style="background:var(--s2)"></span>Midfoot</span><span class="pct" id="pctS2">0%</span></div>
+              <div class="row"><span class="lbl"><span class="swatch" style="background:var(--s3)"></span>Forefoot</span><span class="pct" id="pctS3">0%</span></div>
+            </div>
+          </div>
+          <div class="sep"></div>
+          <div class="row-between" style="font-size:12px;color:var(--text-2)">
+            <span>Strike pattern: <strong id="strikePattern" style="color:var(--text)">—</strong></span>
+            <span class="badge good" id="balanceBadge">Balanced</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h3>Left vs Right balance</h3><span class="tag">load share</span></div>
+          <div class="row-between" style="gap:12px;align-items:stretch">
+            <div style="flex:1;text-align:center;padding:14px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase">Left</div>
+              <div style="font-size:26px;font-weight:700;margin-top:4px"><span id="lrL">50</span>%</div>
+              <div style="font-size:11px;color:var(--text-2);margin-top:2px"><span id="lrLkpa">0</span> kPa avg</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:14px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase">Right</div>
+              <div style="font-size:26px;font-weight:700;margin-top:4px"><span id="lrR">50</span>%</div>
+              <div style="font-size:11px;color:var(--text-2);margin-top:2px"><span id="lrRkpa">0</span> kPa avg</div>
+            </div>
+          </div>
+          <div style="width:100%;height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-top:10px;display:flex">
+            <div id="lrBarL" style="background:var(--s1);transition:width .5s ease"></div>
+            <div id="lrBarR" style="background:var(--s3);transition:width .5s ease"></div>
+          </div>
+          <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+            <span>Asymmetry: <strong id="lrAsym" style="color:var(--text)">0%</strong></span>
+            <span class="badge good" id="lrBadge">Symmetric</span>
+          </div>
+          <div class="muted" style="font-size:10px;margin-top:8px">Both insoles reporting. Lsum = L1+L2+L3, Rsum = R1+R2+R3.</div>
+        </div>
+      </div>
+
+      <!-- GAIT -->
+      <div class="subpane" id="sub-gait">
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Steps</div><div class="value" id="gStep">0</div></div>
+          <div class="metric"><div class="label">Cadence</div><div class="value"><span id="gCad">0</span><small>spm</small></div></div>
+          <div class="metric"><div class="label">Stance L</div><div class="value"><span id="gStanceL">0</span><small>ms</small></div></div>
+          <div class="metric"><div class="label">Stance R</div><div class="value"><span id="gStanceR">0</span><small>ms</small></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Gait cycle · last step</h3><span class="tag" id="gaitFoot">L/R</span></div>
+          <div class="chart-wrap"><svg viewBox="0 0 360 160" id="gaitCycleSvg" preserveAspectRatio="none"></svg></div>
+          <div class="sensor-chips" style="margin:8px 0 0">
+            <span class="chip"><span class="dot" style="background:var(--s1)"></span>Heel strike</span>
+            <span class="chip"><span class="dot" style="background:var(--s2)"></span>Loading</span>
+            <span class="chip"><span class="dot" style="background:var(--s3)"></span>Push-off</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Foot strike · L vs R</h3></div>
+          <div class="row-between" style="gap:10px;align-items:stretch">
+            <div style="flex:1;padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase">Left</div>
+              <div style="font-size:18px;font-weight:700;margin-top:3px" id="strikerL">—</div>
+              <div class="muted" style="font-size:11px;margin-top:2px" id="strikerLdesc">awaiting data</div>
+            </div>
+            <div style="flex:1;padding:12px;background:var(--surface-2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase">Right</div>
+              <div style="font-size:18px;font-weight:700;margin-top:3px" id="strikerR">—</div>
+              <div class="muted" style="font-size:11px;margin-top:2px" id="strikerRdesc">awaiting data</div>
+            </div>
+          </div>
+          <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+            <span>Peak load: <strong id="gPeak" style="color:var(--text)">0</strong> kPa</span>
+            <span class="badge good" id="symBadge">Symmetric gait</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM TABS -->
+  <nav class="tab-bar">
+    <button class="tab active" data-screen="home">
+      <svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v11a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V10z"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="tab" data-screen="pressure">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l3-5 3 3 4-6 4 4"/></svg>
+      <span>Pressure</span>
+    </button>
+    <button class="tab" data-screen="activity">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <span>Activity</span>
+    </button>
+    <button class="tab" data-screen="biomech">
+      <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6.5-7 11-7 11"/><path d="M3 12h4l2-4 3 8 2-4h7"/></svg>
+      <span>Biomech</span>
+    </button>
+    <button class="tab" data-screen="analyze">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9h-9V3z"/></svg>
+      <span>Analyze</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+/* =============================================================
+   INSOLE APP  — mock data engine + Garmin-style UI
+   Swap simulator.tick() with your BLE read path when hardware is ready.
+   ============================================================= */
+(() => {
+  'use strict';
+
+  // ---------- CONFIG ----------
+  const SAMPLE_MS   = 40;                 // pressure sample interval (25 Hz)
+  const GPS_MS      = 500;                // GPS sample interval  (2 Hz)
+  const WINDOW_SEC  = 10;                 // rolling window for live pressure chart
+  const BUF_MAX_P   = Math.ceil((WINDOW_SEC * 1000) / SAMPLE_MS) + 5;
+  const SESSION_MAX = 60 * 60;            // cap session history at 1h
+
+  // Titles per screen
+  const SCREEN_TITLES = {
+    home:     {t:'Home',     s:'Today · Dashboard'},
+    pressure: {t:'Pressure', s:'3 sensors · Live'},
+    activity: {t:'Activity', s:'GPS · Distance · Altitude'},
+    biomech:  {t:'Biomech',  s:'Accel · HR · Correlations'},
+    analyze:  {t:'Analyze',  s:'Gait · Balance'}
+  };
+
+  // ---------- STATE ----------
+  const state = {
+    running: true,
+    t0: Date.now(),
+    elapsed: 0,
+    stepCount: 0,
+    cadence: 0,
+    lastStepT: {L:0, R:0},
+    peak: {l1:0,l2:0,l3:0,r1:0,r2:0,r3:0,lsum:0,rsum:0,sum:0, s1:0,s2:0,s3:0},
+    cur:  {l1:0,l2:0,l3:0,r1:0,r2:0,r3:0,lsum:0,rsum:0,sum:0, s1:0,s2:0,s3:0},
+    // Live rolling pressure buffer
+    pBuf: [],          // [{t,l1,l2,l3,r1,r2,r3,s1,s2,s3,lsum,rsum,sum}]
+    // Session-long aggregated pressure (reduced sampling) for distance-pressure mapping
+    sessionSamples: [],
+    // GPS buffer
+    gBuf: [],          // [{t,dist,lat,lng,speed,alt}]
+    // Last full gait cycle per foot for phase plot
+    lastCycleL: null, lastCycleR: null,
+    stanceStart: {L:-1, R:-1},
+    // Strike classifier tallies per foot
+    strikes: {L:{heel:0,mid:0,fore:0}, R:{heel:0,mid:0,fore:0}},
+    // Accelerometer (live rolling + per-step)
+    aBuf: [],                   // [{t, ax, ay, az, vo}]  vo = vertical osc (cm, rolling)
+    voCur: 0, voAvg: 0,         // cm
+    speedAccel: 0,              // m/s estimated from accel integration
+    gctHistory: {L:[], R:[]},   // per foot, last ~20 GCT values (ms)
+    gctCur: {L:0, R:0}, gctAvg: {L:0, R:0},
+    lastStanceMs: {L:0, R:0},
+    // HR
+    hrBuf: [],                  // [{t, bpm}]
+    hrCur: 70, hrMax: 70, hrSum: 0, hrN: 0,
+    // Altitude — keyed to GPS samples via gBuf (we'll just extend gBuf)
+    altGain: 0, altLoss: 0, altMax: 0,
+    // Per-GPS-sample joint series for cross-maps: [{t, dist, speed, alt, hr, vo, sum}]
+    joinBuf: [],
+    // L/R balance (right foot simulated)
+    lrL: 50, lrR: 50, lrLkpa:0, lrRkpa:0
+  };
+
+  // ---------- SIMULATOR ----------
+  // Walking pace = one step per ~0.9s. Stance ~60% (540ms), swing 40% (360ms).
+  // Within stance: 0-25% heel dominates, 25-60% midfoot, 50-100% forefoot pushes off.
+  const GAIT_PERIOD_MS = 900;  // one full step (stance+swing)
+  const STANCE_FRAC    = 0.6;
+
+  function gaussian(x, mu, sigma){
+    const a = (x - mu) / sigma;
+    return Math.exp(-0.5 * a * a);
+  }
+
+  // Produce one foot's sensor readings from a gait-cycle phase (0..1).
+  function footFromPhase(phase, t_ms, mult){
+    const stanceP = phase / STANCE_FRAC;
+    const inStance = phase < STANCE_FRAC;
+    let s1 = 0, s2 = 0, s3 = 0;
+    if (inStance){
+      s1 = 85 * gaussian(stanceP, 0.18, 0.14);  // heel strike
+      s2 = 72 * gaussian(stanceP, 0.45, 0.18);  // midfoot loading
+      s3 = 95 * gaussian(stanceP, 0.80, 0.16);  // forefoot push-off
+    }
+    const idle = 2 + 1.5 * Math.sin(t_ms / 120);
+    s1 = Math.max(0, s1 + idle         + (Math.random()-.5)*4);
+    s2 = Math.max(0, s2 + idle*0.6     + (Math.random()-.5)*3.5);
+    s3 = Math.max(0, s3 + idle         + (Math.random()-.5)*5);
+    const sway = 1 + 0.06 * Math.sin(t_ms/4000);
+    return [s1*sway*mult, s2*sway*mult, s3*sway*mult];
+  }
+
+  // Both feet at once. Right foot is phase-shifted by 50% (alternating stance).
+  // Small magnitude asymmetry modulates slowly to simulate natural drift.
+  function simulatePressure(t_ms){
+    const phaseL = (t_ms % GAIT_PERIOD_MS) / GAIT_PERIOD_MS;
+    const phaseR = ((t_ms + GAIT_PERIOD_MS/2) % GAIT_PERIOD_MS) / GAIT_PERIOD_MS;
+    const asymmetry = 0.04 * Math.sin(t_ms/23000);  // -4%..+4%
+    const [l1,l2,l3] = footFromPhase(phaseL, t_ms, 1.0 + asymmetry);
+    const [r1,r2,r3] = footFromPhase(phaseR, t_ms, 1.0 - asymmetry);
+    return {l1,l2,l3,r1,r2,r3};
+  }
+
+  // GPS simulator: figure-8 loop, ~1.6 m/s avg, with altitude profile (gentle hill)
+  function simulateGPS(t_ms){
+    const spd = 1.6 + 0.15*Math.sin(t_ms/12000);   // m/s
+    const d   = (state.gBuf.length ? state.gBuf[state.gBuf.length-1].dist : 0) + spd*(GPS_MS/1000);
+    // figure-8 projected onto local x/y plane (meters), then fake lat/lng
+    const s = d / 80;                               // param
+    const x = 40 * Math.sin(s);
+    const y = 40 * Math.sin(s*2) / 2;
+    const lat = 18.5204 + y/111111;
+    const lng = 73.8567 + x/(111111*Math.cos(18.5204*Math.PI/180));
+    // altitude: smooth rolling hill over distance
+    const alt = 560 + 12*Math.sin(d/220) + 6*Math.sin(d/90) + (Math.random()-.5)*0.4;
+    return {dist:d, lat, lng, speed: spd, alt};
+  }
+
+  // Accelerometer simulator: tri-axis. Z-axis picks up heel-strike shock.
+  // Vertical oscillation is integrated from az during stance cycle.
+  function simulateAccel(t_ms){
+    const phase = (t_ms % GAIT_PERIOD_MS) / GAIT_PERIOD_MS;
+    // az: ~1g rest, spikes at heel-strike (~+1.5g) and push-off (~-0.5g)
+    let az = 1.0
+      + 1.8 * gaussian(phase, 0.10*STANCE_FRAC, 0.03)   // heel strike spike
+      - 0.6 * gaussian(phase, 0.50*STANCE_FRAC, 0.05)   // loading dip
+      + 0.9 * gaussian(phase, 0.90*STANCE_FRAC, 0.04);  // push-off
+    az += (Math.random()-.5)*0.08;
+    // ax forward: small oscillation with forward progression
+    const ax = 0.35 * Math.sin(phase*Math.PI*2) + (Math.random()-.5)*0.06;
+    const ay = 0.18 * Math.sin(phase*Math.PI*2 + 0.5) + (Math.random()-.5)*0.06;
+    // Vertical oscillation — peak-to-peak of integrated az during one cycle
+    // Approximation: amplitude roughly scales with speed & cadence
+    const vo = 7.5 + 1.5*Math.sin(t_ms/7000) + (Math.random()-.5)*0.4; // cm
+    return {ax, ay, az, vo};
+  }
+
+  // HR simulator: baseline 68, rises with effort (speed^1.2 + altitude factor), drifts
+  function simulateHR(t_ms){
+    const spd = state.gBuf.length ? state.gBuf[state.gBuf.length-1].speed : 0;
+    const alt = state.gBuf.length ? state.gBuf[state.gBuf.length-1].alt : 560;
+    const effort = Math.pow(Math.max(0,spd),1.3)*18 + Math.max(0,(alt-560))*0.8;
+    const target = 68 + effort;                  // target bpm
+    // smooth toward target with small noise + breathing modulation
+    const breath = 2.5*Math.sin(t_ms/3200);
+    const next = state.hrCur + (target - state.hrCur)*0.03 + breath*0.15 + (Math.random()-.5)*0.6;
+    return Math.max(45, Math.min(205, next));
+  }
+  function hrZone(bpm){
+    // zones as % of HRmax (assume 190)
+    const p = bpm/190;
+    if (p < 0.6) return {z:'Z1 · warm', cls:'good'};
+    if (p < 0.7) return {z:'Z2 · easy', cls:'good'};
+    if (p < 0.8) return {z:'Z3 · aerobic', cls:'warn'};
+    if (p < 0.9) return {z:'Z4 · threshold', cls:'warn'};
+    return {z:'Z5 · max', cls:'warn'};
+  }
+
+  // ---------- TIMERS ----------
+  let pTimer, gTimer;
+  function startTimers(){
+    pTimer = setInterval(onPressureTick, SAMPLE_MS);
+    gTimer = setInterval(onGpsTick, GPS_MS);
+  }
+  function stopTimers(){ clearInterval(pTimer); clearInterval(gTimer); }
+
+  function onPressureTick(){
+    if (!state.running) return;
+    const now = Date.now();
+    state.elapsed = Math.floor((now - state.t0)/1000);
+    const raw = simulatePressure(now - state.t0);
+    const lsum = raw.l1 + raw.l2 + raw.l3;
+    const rsum = raw.r1 + raw.r2 + raw.r3;
+    const sum  = lsum + rsum;
+    // Combined per-position (average of L&R) for legacy chips/donut/phase plot
+    const s1 = (raw.l1 + raw.r1) / 2;
+    const s2 = (raw.l2 + raw.r2) / 2;
+    const s3 = (raw.l3 + raw.r3) / 2;
+    const sample = {t: now, l1:raw.l1, l2:raw.l2, l3:raw.l3, r1:raw.r1, r2:raw.r2, r3:raw.r3, s1, s2, s3, lsum, rsum, sum};
+
+    // Buffers
+    state.pBuf.push(sample);
+    if (state.pBuf.length > BUF_MAX_P) state.pBuf.shift();
+    // Session-level downsample (keep every 5th ~ 5Hz)
+    if (state.sessionSamples.length === 0 ||
+        now - state.sessionSamples[state.sessionSamples.length-1].t > 180){
+      state.sessionSamples.push(sample);
+      if (state.sessionSamples.length > SESSION_MAX) state.sessionSamples.shift();
+    }
+
+    // Accelerometer sample (same cadence as pressure)
+    const ac = simulateAccel(now - state.t0);
+    state.aBuf.push({t: now, ...ac});
+    if (state.aBuf.length > BUF_MAX_P) state.aBuf.shift();
+    state.voCur = ac.vo;
+    // rolling avg VO
+    const voN = Math.min(200, state.aBuf.length);
+    let voSum = 0;
+    for (let i=state.aBuf.length-voN; i<state.aBuf.length; i++) voSum += state.aBuf[i].vo;
+    state.voAvg = voSum / Math.max(1,voN);
+    // speed estimate from accel: integrate ax with strong damping (toy)
+    state.speedAccel = state.speedAccel*0.94 + Math.abs(ac.ax)*0.5;
+
+    // Current + peak
+    state.cur = {l1:raw.l1,l2:raw.l2,l3:raw.l3,r1:raw.r1,r2:raw.r2,r3:raw.r3,s1,s2,s3,lsum,rsum,sum};
+    for (const k of ['l1','l2','l3','r1','r2','r3','s1','s2','s3','lsum','rsum','sum']){
+      state.peak[k] = Math.max(state.peak[k], state.cur[k]);
+    }
+
+    // HR sample
+    const bpm = simulateHR(now - state.t0);
+    state.hrCur = bpm;
+    state.hrMax = Math.max(state.hrMax, bpm);
+    state.hrSum += bpm; state.hrN++;
+    state.hrBuf.push({t: now, bpm});
+    if (state.hrBuf.length > BUF_MAX_P*2) state.hrBuf.shift();
+
+    // Step detection per foot: rising/falling edge of that foot's collective
+    detectStepForFoot(sample, 'L');
+    detectStepForFoot(sample, 'R');
+
+    // L/R running totals for balance widget
+    if (lsum+rsum > 5){   // only when in contact
+      const tot = lsum+rsum;
+      state.lrLkpa = Math.round(lsum);
+      state.lrRkpa = Math.round(rsum);
+    }
+  }
+
+  function detectStepForFoot(sample, foot){
+    // foot = 'L' or 'R'. Uses lsum or rsum as collective for that foot.
+    const key = foot === 'L' ? 'lsum' : 'rsum';
+    const [k1,k2,k3] = foot === 'L' ? ['l1','l2','l3'] : ['r1','r2','r3'];
+    const buf = state.pBuf;
+    const n = buf.length;
+    if (n < 3) return;
+    const prev = buf[n-2], curr = buf[n-1];
+    const THR = 25;
+    if (prev[key] < THR && curr[key] >= THR){
+      state.stanceStart[foot] = curr.t;
+    }
+    if (prev[key] >= THR && curr[key] < THR && state.stanceStart[foot] > 0){
+      const gct = curr.t - state.stanceStart[foot];
+      state.lastStanceMs[foot] = gct;
+      state.gctCur[foot] = gct;
+      state.gctHistory[foot].push(gct);
+      if (state.gctHistory[foot].length > 20) state.gctHistory[foot].shift();
+      state.gctAvg[foot] = Math.round(state.gctHistory[foot].reduce((a,b)=>a+b,0)/state.gctHistory[foot].length);
+      state.stepCount++;
+      if (state.lastStepT[foot] > 0){
+        const dt = (curr.t - state.lastStepT[foot])/1000;
+        // per-foot stride rate; overall cadence = twice the slower foot's rate (both feet)
+        const rate = 60/dt;
+        state.cadence = Math.round(rate*2);
+      }
+      state.lastStepT[foot] = curr.t;
+
+      // Capture last gait cycle for phase plot
+      const cycleStart = state.stanceStart[foot] - 50;
+      const cyc = state.pBuf
+        .filter(p => p.t >= cycleStart && p.t <= curr.t + 100)
+        .map(p => ({ t: p.t - cycleStart, s1: p[k1], s2: p[k2], s3: p[k3] }));
+      if (foot === 'L') state.lastCycleL = cyc; else state.lastCycleR = cyc;
+
+      // Classify strike pattern per foot
+      if (cyc && cyc.length > 4){
+        const find = (k) => cyc.findIndex(x => x[k] > 20);
+        const i1 = find('s1'), i2 = find('s2'), i3 = find('s3');
+        const first = [[i1,'heel'],[i2,'mid'],[i3,'fore']]
+          .filter(([i])=>i>=0).sort((a,b)=>a[0]-b[0])[0];
+        if (first) state.strikes[foot][first[1]]++;
+      }
+      state.stanceStart[foot] = -1;
+    }
+  }
+
+  function onGpsTick(){
+    if (!state.running) return;
+    const now = Date.now();
+    const g = simulateGPS(now - state.t0);
+    const prev = state.gBuf.length ? state.gBuf[state.gBuf.length-1] : null;
+    state.gBuf.push({t: now, ...g});
+    if (state.gBuf.length > SESSION_MAX*2) state.gBuf.shift();
+
+    // Altitude gain/loss accumulation
+    if (prev){
+      const d = g.alt - prev.alt;
+      if (d > 0) state.altGain += d;
+      else       state.altLoss += -d;
+    }
+    state.altMax = Math.max(state.altMax, g.alt);
+
+    // Build joint cross-map row (aligned values at this GPS instant)
+    state.joinBuf.push({
+      t: now,
+      dist: g.dist,
+      speed: g.speed*3.6,               // km/h
+      alt: g.alt,
+      hr: state.hrCur,
+      vo: state.voAvg || state.voCur,
+      sum: state.cur.sum
+    });
+    if (state.joinBuf.length > 3600) state.joinBuf.shift();
+
+    // L/R balance from real per-foot session averages (updated in render)
+  }
+
+  // ---------- RENDER LOOP (40ms) ----------
+  let currentScreen = 'home';
+  function renderLoop(){
+    updateHeader();
+    updateHero();
+    if (currentScreen === 'home')     renderHome();
+    if (currentScreen === 'pressure') renderPressure();
+    if (currentScreen === 'activity') renderActivity();
+    if (currentScreen === 'biomech')  renderBiomech();
+    if (currentScreen === 'analyze')  renderAnalyze();
+    requestAnimationFrame(renderLoop);
+  }
+
+  // ---------- HELPERS ----------
+  const $ = (id) => document.getElementById(id);
+  function fmtMMSS(s){ const m=Math.floor(s/60), ss=s%60; return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`; }
+  function fmtPace(secPerKm){
+    if (!isFinite(secPerKm) || secPerKm<=0 || secPerKm>60*60) return '--:--';
+    const m=Math.floor(secPerKm/60), s=Math.round(secPerKm%60);
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+  function headerDate(){
+    const d = new Date(); return d.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
+  }
+
+  // ---------- HEADER + HERO ----------
+  function updateHeader(){
+    const cfg = SCREEN_TITLES[currentScreen];
+    $('hdrTitle').textContent = cfg.t;
+    $('hdrSub').textContent   = cfg.s;
+    $('liveDot').textContent  = state.running ? 'Live' : 'Paused';
+    $('liveDot').classList.toggle('paused', !state.running);
+  }
+  function updateHero(){
+    $('heroSteps').textContent = state.stepCount.toLocaleString();
+    const distKm = (state.gBuf.length ? state.gBuf[state.gBuf.length-1].dist : 0)/1000;
+    $('heroDist').textContent  = distKm.toFixed(2);
+    $('heroLoad').textContent  = Math.round(state.peak.sum);
+    $('homeTimer').textContent = fmtMMSS(state.elapsed);
+  }
+
+  // ---------- CHART PRIMITIVES ----------
+  // Renders a line path into a given svg element at its intrinsic viewBox.
+  function drawSeries(svgId, data, key, color, opts={}){
+    const svg = $(svgId); if (!svg) return;
+    const vb  = svg.viewBox.baseVal;
+    const W = vb.width, H = vb.height;
+    const pad = {t:8,r:4,b:14,l:24, ...opts.pad};
+    const plotW = W - pad.l - pad.r;
+    const plotH = H - pad.t - pad.b;
+    const ymin = opts.ymin ?? 0;
+    const ymax = opts.ymax ?? 120;
+
+    // Build svg innerHTML once (clear + redraw)
+    let html = '';
+    // Grid
+    const gridSteps = 3;
+    for (let i=0;i<=gridSteps;i++){
+      const y = pad.t + (plotH*i/gridSteps);
+      const val = ymax - (ymax-ymin)*i/gridSteps;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="4" y="${y+3}">${Math.round(val)}</text>`;
+    }
+    // X axis bottom
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+
+    // Data path
+    if (data && data.length > 1){
+      const tEnd = data[data.length-1].t;
+      const tStart = tEnd - WINDOW_SEC*1000;
+      let pts = '';
+      let area = '';
+      let started = false;
+      for (let i=0;i<data.length;i++){
+        const d = data[i];
+        const nx = (d.t - tStart) / (WINDOW_SEC*1000);
+        if (nx < 0) continue;
+        const x = pad.l + nx * plotW;
+        const v = Math.max(ymin, Math.min(ymax, d[key]));
+        const y = pad.t + (1 - (v-ymin)/(ymax-ymin)) * plotH;
+        pts += (started ? ' L ' : 'M ') + x.toFixed(1) + ' ' + y.toFixed(1);
+        if (!started){ area = `M ${x.toFixed(1)} ${H-pad.b} L ${x.toFixed(1)} ${y.toFixed(1)}`; }
+        else { area += ` L ${x.toFixed(1)} ${y.toFixed(1)}`; }
+        started = true;
+      }
+      if (started){
+        // Close area to bottom
+        const lastX = pad.l + plotW;
+        area += ` L ${lastX.toFixed(1)} ${(H-pad.b).toFixed(1)} Z`;
+        html += `<path d="${area}" fill="${color}" opacity="0.12"/>`;
+        html += `<path d="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+        // Latest point marker
+        const last = data[data.length-1];
+        const lx = pad.l + plotW;
+        const lv = Math.max(ymin, Math.min(ymax, last[key]));
+        const ly = pad.t + (1 - (lv-ymin)/(ymax-ymin)) * plotH;
+        html += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="3.5" fill="${color}"/>`;
+      }
+    }
+    svg.innerHTML = html;
+  }
+
+  // Multi-series overlay for collective chart
+  function drawMultiSeries(svgId, data, series, opts={}){
+    const svg = $(svgId); if (!svg) return;
+    const vb  = svg.viewBox.baseVal;
+    const W = vb.width, H = vb.height;
+    const pad = {t:8,r:4,b:14,l:28, ...opts.pad};
+    const plotW = W - pad.l - pad.r, plotH = H - pad.t - pad.b;
+    const ymin = 0, ymax = opts.ymax ?? 280;
+
+    let html = '';
+    const gridSteps = 4;
+    for (let i=0;i<=gridSteps;i++){
+      const y = pad.t + (plotH*i/gridSteps);
+      const val = ymax - (ymax-ymin)*i/gridSteps;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(val)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+
+    if (data && data.length > 1){
+      const tEnd = data[data.length-1].t;
+      const tStart = tEnd - WINDOW_SEC*1000;
+      for (const ser of series){
+        let pts=''; let started=false;
+        for (const d of data){
+          const nx = (d.t - tStart)/(WINDOW_SEC*1000);
+          if (nx < 0) continue;
+          const x = pad.l + nx * plotW;
+          const v = Math.max(ymin, Math.min(ymax, d[ser.key]));
+          const y = pad.t + (1 - (v-ymin)/(ymax-ymin)) * plotH;
+          pts += (started?' L ':'M ') + x.toFixed(1)+' '+y.toFixed(1);
+          started = true;
+        }
+        const dashAttr = ser.dash ? ` stroke-dasharray="${ser.dash}"` : '';
+        html += `<path d="${pts}" fill="none" stroke="${ser.color}" stroke-width="${ser.w||1.6}" opacity="${ser.op||1}" stroke-linecap="round" stroke-linejoin="round"${dashAttr}/>`;
+      }
+    }
+    svg.innerHTML = html;
+  }
+
+  // ---------- HOME ----------
+  function renderHome(){
+    // Chips show combined (L+R) per position
+    $('chipS1').textContent = Math.round(state.cur.l1 + state.cur.r1);
+    $('chipS2').textContent = Math.round(state.cur.l2 + state.cur.r2);
+    $('chipS3').textContent = Math.round(state.cur.l3 + state.cur.r3);
+    $('chipSum').textContent= Math.round(state.cur.sum);
+    drawSeries('homeChart', state.pBuf, 'sum', '#27E8A7', {ymax:500, pad:{t:8,r:6,b:12,l:28}});
+  }
+
+  // ---------- PRESSURE ----------
+  function renderPressure(){
+    $('curL1').textContent = Math.round(state.cur.l1);
+    $('curR1').textContent = Math.round(state.cur.r1);
+    $('curL2').textContent = Math.round(state.cur.l2);
+    $('curR2').textContent = Math.round(state.cur.r2);
+    $('curL3').textContent = Math.round(state.cur.l3);
+    $('curR3').textContent = Math.round(state.cur.r3);
+    $('mCur').textContent  = Math.round(state.cur.sum);
+    $('mPeak').textContent = Math.round(state.peak.sum);
+    $('collTag').textContent = Math.round(state.cur.sum) + ' kPa';
+
+    // Per-position L + R overlays (solid = Left, dashed = Right)
+    drawMultiSeries('chartS1', state.pBuf, [
+      {key:'l1', color:'#3B82F6', w:2.0},
+      {key:'r1', color:'#3B82F6', w:1.8, dash:'4 3'}
+    ], {ymax:120});
+    drawMultiSeries('chartS2', state.pBuf, [
+      {key:'l2', color:'#F59E0B', w:2.0},
+      {key:'r2', color:'#F59E0B', w:1.8, dash:'4 3'}
+    ], {ymax:120});
+    drawMultiSeries('chartS3', state.pBuf, [
+      {key:'l3', color:'#EF4444', w:2.0},
+      {key:'r3', color:'#EF4444', w:1.8, dash:'4 3'}
+    ], {ymax:120});
+    // Collective: L-sum, R-sum, Grand total
+    drawMultiSeries('chartSum', state.pBuf, [
+      {key:'lsum', color:'#3B82F6', w:1.6, op:.85},
+      {key:'rsum', color:'#EF4444', w:1.6, op:.85},
+      {key:'sum',  color:'#27E8A7', w:2.4}
+    ], {ymax:500});
+  }
+
+  // ---------- ACTIVITY / GPS ----------
+  function renderActivity(){
+    // Stats
+    const last = state.gBuf[state.gBuf.length-1];
+    const distM = last ? last.dist : 0;
+    const distKm = distM/1000;
+    $('gpsDist').textContent = distKm.toFixed(2);
+    $('gpsTime').textContent = fmtMMSS(state.elapsed);
+    const speed = last ? last.speed : 0;
+    $('gpsSpeed').textContent = (speed*3.6).toFixed(1);
+    $('gpsPace').textContent  = fmtPace(speed>0 ? 1000/speed : Infinity);
+
+    renderRoute();
+    renderDistanceTime();
+    renderDistancePressure();
+    renderAltitude();
+    renderHRvsDistance();
+  }
+
+  function renderAltitude(){
+    const svg = $('chartAlt'); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:10, r:10, b:18, l:36};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+
+    const pts = state.gBuf;
+    $('altGain').textContent = Math.round(state.altGain);
+    $('altLoss').textContent = Math.round(state.altLoss);
+    $('altMax').textContent  = Math.round(state.altMax);
+
+    let html = '';
+    if (pts.length < 2){ svg.innerHTML=''; return; }
+    const dMax = Math.max(0.1, pts[pts.length-1].dist/1000);
+    let aMin = Infinity, aMax = -Infinity;
+    for (const p of pts){ if (p.alt<aMin) aMin=p.alt; if (p.alt>aMax) aMax=p.alt; }
+    if (aMax - aMin < 10) { const c=(aMin+aMax)/2; aMin=c-5; aMax=c+5; }
+
+    const yS=3;
+    for (let i=0;i<=yS;i++){
+      const y = pad.t + plotH*i/yS;
+      const v = aMax - (aMax-aMin)*i/yS;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="y-axis-label" x="2" y="${pad.t-1}" style="font-size:9px">m</text>`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-4}" text-anchor="end">${dMax.toFixed(2)} km</text>`;
+
+    let d='',area='';
+    for (let i=0;i<pts.length;i++){
+      const x = pad.l + (pts[i].dist/1000/dMax)*plotW;
+      const y = pad.t + (1 - (pts[i].alt-aMin)/(aMax-aMin))*plotH;
+      d += (i===0?'M ':' L ')+x.toFixed(1)+' '+y.toFixed(1);
+      if (i===0) area = `M ${x.toFixed(1)} ${H-pad.b} L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      else area += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }
+    area += ` L ${(pad.l+plotW).toFixed(1)} ${H-pad.b} Z`;
+    html += `<path d="${area}" fill="#7C3AED" opacity=".18"/>`;
+    html += `<path d="${d}" fill="none" stroke="#A78BFA" stroke-width="2" stroke-linecap="round"/>`;
+    svg.innerHTML = html;
+  }
+
+  function renderHRvsDistance(){
+    const svg = $('chartHRdist'); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:10, r:10, b:18, l:34};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    const pts = state.joinBuf;
+    $('hrCur2').textContent = Math.round(state.hrCur);
+    $('hrAvg2').textContent = state.hrN ? Math.round(state.hrSum/state.hrN) : 0;
+    $('hrMax2').textContent = Math.round(state.hrMax);
+    let html = '';
+    if (pts.length<2){ svg.innerHTML=''; return; }
+    const dMax = Math.max(0.1, pts[pts.length-1].dist/1000);
+    const hMin = 50, hMax = 200;
+    const yS=3;
+    for (let i=0;i<=yS;i++){
+      const y = pad.t + plotH*i/yS;
+      const v = hMax - (hMax-hMin)*i/yS;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="y-axis-label" x="2" y="${pad.t-1}" style="font-size:9px">bpm</text>`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-4}" text-anchor="end">${dMax.toFixed(2)} km</text>`;
+    let d='';
+    for (let i=0;i<pts.length;i++){
+      const x = pad.l + (pts[i].dist/1000/dMax)*plotW;
+      const y = pad.t + (1 - (pts[i].hr-hMin)/(hMax-hMin))*plotH;
+      d += (i===0?'M ':' L ')+x.toFixed(1)+' '+y.toFixed(1);
+    }
+    html += `<path d="${d}" fill="none" stroke="#F43F5E" stroke-width="2" stroke-linecap="round"/>`;
+    svg.innerHTML = html;
+  }
+
+  // ---------- BIOMECH ----------
+  function renderBiomech(){
+    $('hrCur').textContent  = Math.round(state.hrCur);
+    $('voCur').textContent  = state.voCur.toFixed(1);
+    $('voAvg').textContent  = state.voAvg.toFixed(1);
+    $('gctCur').textContent = Math.round((state.gctCur.L + state.gctCur.R)/2) || 0;
+    $('gctAvg').textContent = Math.round((state.gctAvg.L + state.gctAvg.R)/2) || 0;
+    $('aSpeed').textContent = (state.speedAccel*3.6).toFixed(1);
+    const z = hrZone(state.hrCur);
+    $('hrZone').textContent = z.z;
+
+    // HR live line
+    drawSeriesGeneric('chartHR', state.hrBuf, 'bpm', '#F43F5E', {ymin:50, ymax:200});
+    // Vertical osc live line
+    drawSeriesGeneric('chartVO', state.aBuf, 'vo', '#A78BFA', {ymin:3, ymax:13});
+    // Ground contact time bar chart
+    renderGCTBars();
+    // L/R GCT split from real per-foot values
+    const gctL = state.gctAvg.L;
+    const gctR = state.gctAvg.R;
+    const tot = gctL + gctR;
+    const pctL = tot ? Math.round(100*gctL/tot) : 50;
+    $('gctLR').textContent = `${pctL}/${100-pctL}`;
+
+    // Cross-map scatters
+    renderScatter('scatHRspd', state.joinBuf, 'speed', 'hr', 'km/h', 'bpm', {xmin:0,xmax:15, ymin:50, ymax:200});
+    renderScatter('scatHRvo',  state.joinBuf, 'vo',    'hr', 'cm',   'bpm', {xmin:3,xmax:13, ymin:50, ymax:200});
+    renderScatter('scatHRalt', state.joinBuf, 'alt',   'hr', 'm',    'bpm', {ymin:50, ymax:200});
+    renderScatter('scatHRdst', state.joinBuf, 'dist',  'hr', 'm',    'bpm', {ymin:50, ymax:200});
+  }
+
+  // generic line chart for time-series with a given data key
+  function drawSeriesGeneric(svgId, data, key, color, opts={}){
+    const svg = $(svgId); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:8,r:6,b:14,l:28, ...opts.pad};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    const ymin = opts.ymin ?? 0, ymax = opts.ymax ?? 100;
+    let html = '';
+    const gridSteps = 3;
+    for (let i=0;i<=gridSteps;i++){
+      const y = pad.t + plotH*i/gridSteps;
+      const v = ymax - (ymax-ymin)*i/gridSteps;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    if (data && data.length>1){
+      const tEnd = data[data.length-1].t;
+      const tStart = tEnd - WINDOW_SEC*1000;
+      let d='',area=''; let started=false;
+      for (let i=0;i<data.length;i++){
+        const samp = data[i];
+        const nx = (samp.t - tStart)/(WINDOW_SEC*1000);
+        if (nx < 0) continue;
+        const x = pad.l + nx*plotW;
+        const v = Math.max(ymin, Math.min(ymax, samp[key]));
+        const y = pad.t + (1 - (v-ymin)/(ymax-ymin))*plotH;
+        d += (started?' L ':'M ')+x.toFixed(1)+' '+y.toFixed(1);
+        if (!started) area = `M ${x.toFixed(1)} ${H-pad.b} L ${x.toFixed(1)} ${y.toFixed(1)}`;
+        else          area += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+        started = true;
+      }
+      if (started){
+        area += ` L ${(pad.l+plotW).toFixed(1)} ${H-pad.b} Z`;
+        html += `<path d="${area}" fill="${color}" opacity=".14"/>`;
+        html += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round"/>`;
+      }
+    }
+    svg.innerHTML = html;
+  }
+
+  function renderGCTBars(){
+    const svg = $('chartGCT'); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:10,r:8,b:18,l:34};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    // Combine L & R histories interleaved chronologically
+    const arr = [...state.gctHistory.L, ...state.gctHistory.R].slice(-30);
+    let html = '';
+    const ymax = 400, ymin = 100;
+    for (let i=0;i<=3;i++){
+      const y = pad.t + plotH*i/3;
+      const v = ymax - (ymax-ymin)*i/3;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="y-axis-label" x="2" y="${pad.t-1}" style="font-size:9px">ms</text>`;
+    const N = arr.length;
+    if (N>0){
+      const bw = plotW / Math.max(20, N);
+      for (let i=0;i<N;i++){
+        const v = Math.max(ymin, Math.min(ymax, arr[i]));
+        const h = (v-ymin)/(ymax-ymin) * plotH;
+        const x = pad.l + i*bw + 1;
+        const y = pad.t + plotH - h;
+        const c = v < 240 ? '#27E8A7' : v < 300 ? '#F59E0B' : '#EF4444';
+        html += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(2,bw-2).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${c}"/>`;
+      }
+    }
+    svg.innerHTML = html;
+  }
+
+  function renderScatter(svgId, data, xKey, yKey, xLab, yLab, opts={}){
+    const svg = $(svgId); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:8,r:6,b:18,l:26};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    if (!data || data.length < 2){ svg.innerHTML=''; return; }
+    // Determine bounds
+    let xmin = opts.xmin ?? Infinity, xmax = opts.xmax ?? -Infinity;
+    let ymin = opts.ymin ?? Infinity, ymax = opts.ymax ?? -Infinity;
+    if (!isFinite(xmin) || !isFinite(xmax)){
+      xmin = Infinity; xmax = -Infinity;
+      for (const d of data){ if (d[xKey]<xmin)xmin=d[xKey]; if (d[xKey]>xmax)xmax=d[xKey]; }
+    }
+    if (!isFinite(ymin) || !isFinite(ymax)){
+      ymin = Infinity; ymax = -Infinity;
+      for (const d of data){ if (d[yKey]<ymin)ymin=d[yKey]; if (d[yKey]>ymax)ymax=d[yKey]; }
+    }
+    if (xmax-xmin < 1e-6){ xmax = xmin+1; }
+    if (ymax-ymin < 1e-6){ ymax = ymin+1; }
+    let html = '';
+    // axes
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<line class="axis-line" x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${H-pad.b}"/>`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-4}" text-anchor="end">${xLab}</text>`;
+    html += `<text class="y-axis-label" x="${pad.l-2}" y="${pad.t+8}" text-anchor="end">${yLab}</text>`;
+    // y ticks
+    for (let i=1;i<3;i++){
+      const y = pad.t + plotH*i/3;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+    }
+    // points (last N)
+    const step = Math.max(1, Math.floor(data.length/80));
+    for (let i=0;i<data.length;i+=step){
+      const d = data[i];
+      const nx = (d[xKey]-xmin)/(xmax-xmin);
+      const ny = (d[yKey]-ymin)/(ymax-ymin);
+      if (nx<0||nx>1||ny<0||ny>1) continue;
+      const x = pad.l + nx*plotW;
+      const y = pad.t + (1-ny)*plotH;
+      const recent = (data.length-1-i) < 15;
+      html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${recent?2.4:1.8}" fill="${recent?'#F43F5E':'#00AEEF'}" opacity="${recent?0.95:0.55}"/>`;
+    }
+    svg.innerHTML = html;
+  }
+
+  function renderRoute(){
+    const svg = $('routeSvg'); if (!svg) return;
+    const vb = svg.viewBox.baseVal;
+    const W = vb.width, H = vb.height;
+    const pts = state.gBuf;
+    if (pts.length < 2){ svg.innerHTML=''; return; }
+
+    // Convert lat/lng to local XY, then fit
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    const xy = pts.map(p=>{
+      const x = (p.lng-73.8567) * 111111 * Math.cos(18.5204*Math.PI/180);
+      const y = -(p.lat-18.5204) * 111111;
+      if (x<minX)minX=x; if (x>maxX)maxX=x;
+      if (y<minY)minY=y; if (y>maxY)maxY=y;
+      return {x,y};
+    });
+    const rangeX = Math.max(1, maxX-minX);
+    const rangeY = Math.max(1, maxY-minY);
+    const pad = 18;
+    const scale = Math.min((W-pad*2)/rangeX, (H-pad*2)/rangeY);
+    const offX = pad + ((W-pad*2) - rangeX*scale)/2 - minX*scale;
+    const offY = pad + ((H-pad*2) - rangeY*scale)/2 - minY*scale;
+
+    // Subtle grid
+    let html = '';
+    for (let gx=0; gx<=W; gx+=40) html += `<line class="grid-line" x1="${gx}" y1="0" x2="${gx}" y2="${H}"/>`;
+    for (let gy=0; gy<=H; gy+=40) html += `<line class="grid-line" x1="0" y1="${gy}" x2="${W}" y2="${gy}"/>`;
+
+    // Path
+    let d='';
+    for (let i=0;i<xy.length;i++){
+      const X = xy[i].x*scale + offX;
+      const Y = xy[i].y*scale + offY;
+      d += (i===0?'M ':' L ')+X.toFixed(1)+' '+Y.toFixed(1);
+    }
+    html += `<path class="route-path" d="${d}"/>`;
+    // Start marker
+    const s = xy[0];
+    html += `<circle class="route-marker" cx="${(s.x*scale+offX).toFixed(1)}" cy="${(s.y*scale+offY).toFixed(1)}" r="4"/>`;
+    // Current marker
+    const c = xy[xy.length-1];
+    const CX = (c.x*scale+offX).toFixed(1), CY = (c.y*scale+offY).toFixed(1);
+    html += `<circle cx="${CX}" cy="${CY}" r="9" fill="rgba(0,174,239,.22)"/>`;
+    html += `<circle cx="${CX}" cy="${CY}" r="5" fill="#fff" stroke="#00AEEF" stroke-width="2"/>`;
+    svg.innerHTML = html;
+  }
+
+  function renderDistanceTime(){
+    const svg = $('chartDT'); if (!svg) return;
+    const vb = svg.viewBox.baseVal;
+    const W = vb.width, H = vb.height;
+    const pad = {t:10, r:10, b:18, l:34};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+
+    const pts = state.gBuf;
+    let html = '';
+    const tMax = Math.max(60, (pts.length ? (pts[pts.length-1].t - state.t0)/1000 : 0));
+    const dMax = Math.max(0.1, (pts.length ? pts[pts.length-1].dist/1000 : 0));
+
+    // Grid & axes
+    const yS = 3, xS = 4;
+    for (let i=0;i<=yS;i++){
+      const y = pad.t + plotH*i/yS;
+      const v = dMax - dMax*i/yS;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${v.toFixed(2)}</text>`;
+    }
+    for (let i=0;i<=xS;i++){
+      const x = pad.l + plotW*i/xS;
+      const v = tMax*i/xS;
+      html += `<text class="x-axis-label" x="${x}" y="${H-4}" text-anchor="middle">${Math.round(v)}s</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="y-axis-label" x="2" y="${pad.t-1}" style="font-size:9px">km</text>`;
+
+    if (pts.length>1){
+      let d='', area='';
+      for (let i=0;i<pts.length;i++){
+        const t = (pts[i].t - state.t0)/1000;
+        const k = pts[i].dist/1000;
+        const x = pad.l + (t/tMax)*plotW;
+        const y = pad.t + (1 - k/dMax)*plotH;
+        d += (i===0?'M ':' L ')+x.toFixed(1)+' '+y.toFixed(1);
+        if (i===0) area = `M ${x.toFixed(1)} ${H-pad.b} L ${x.toFixed(1)} ${y.toFixed(1)}`;
+        else area += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      const lastX = pad.l + plotW;
+      area += ` L ${lastX.toFixed(1)} ${H-pad.b} Z`;
+      html += `<path d="${area}" fill="#00AEEF" opacity=".14"/>`;
+      html += `<path d="${d}" fill="none" stroke="#00AEEF" stroke-width="2.2" stroke-linecap="round"/>`;
+    }
+    svg.innerHTML = html;
+  }
+
+  // Distance vs Pressure: for each GPS sample, compute pressure at that moment
+  function renderDistancePressure(){
+    const svg = $('chartDP'); if (!svg) return;
+    const vb = svg.viewBox.baseVal;
+    const W = vb.width, H = vb.height;
+    const pad = {t:10,r:10,b:18,l:34};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+
+    // Align: for each gps sample, find nearest session-pressure sample and take sum.
+    const gps = state.gBuf;
+    const ps  = state.sessionSamples;
+    if (gps.length<2 || ps.length<2){ svg.innerHTML = ''; return; }
+
+    const dMax = Math.max(0.1, gps[gps.length-1].dist/1000);
+    let pMax = 200;
+
+    // two-pointer merge by t (both sorted ascending)
+    let j = 0;
+    const aligned = [];
+    for (let i=0;i<gps.length;i++){
+      const t = gps[i].t;
+      while (j<ps.length-1 && Math.abs(ps[j+1].t - t) <= Math.abs(ps[j].t - t)) j++;
+      aligned.push({d: gps[i].dist/1000, p: ps[j].sum});
+      if (ps[j].sum > pMax) pMax = ps[j].sum+20;
+    }
+
+    // Smooth with moving average for readability
+    const sm = [];
+    const win = 3;
+    for (let i=0;i<aligned.length;i++){
+      let s=0, c=0;
+      for (let k=Math.max(0,i-win); k<=Math.min(aligned.length-1,i+win); k++){ s+=aligned[k].p; c++; }
+      sm.push({d:aligned[i].d, p:s/c});
+    }
+
+    // Stats
+    let sum=0, peakV=0, peakD=0;
+    for (const s of sm){ sum += s.p; if (s.p>peakV){peakV=s.p; peakD=s.d;} }
+    $('dpAvg').textContent    = sm.length ? Math.round(sum/sm.length) : 0;
+    $('dpPeak').textContent   = Math.round(peakV);
+    $('dpPeakAt').textContent = peakD.toFixed(2);
+
+    let html='';
+    const yS=3,xS=4;
+    for (let i=0;i<=yS;i++){
+      const y = pad.t + plotH*i/yS;
+      const v = pMax - pMax*i/yS;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    for (let i=0;i<=xS;i++){
+      const x = pad.l + plotW*i/xS;
+      const v = dMax*i/xS;
+      html += `<text class="x-axis-label" x="${x}" y="${H-4}" text-anchor="middle">${v.toFixed(2)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="y-axis-label" x="2" y="${pad.t-1}" style="font-size:9px">kPa</text>`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-4}" text-anchor="end">km</text>`;
+
+    if (sm.length>1){
+      let d='',area='';
+      for (let i=0;i<sm.length;i++){
+        const x = pad.l + (sm[i].d/dMax)*plotW;
+        const y = pad.t + (1 - sm[i].p/pMax)*plotH;
+        d += (i===0?'M ':' L ')+x.toFixed(1)+' '+y.toFixed(1);
+        if (i===0) area = `M ${x.toFixed(1)} ${H-pad.b} L ${x.toFixed(1)} ${y.toFixed(1)}`;
+        else area += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      area += ` L ${(pad.l+plotW).toFixed(1)} ${H-pad.b} Z`;
+      html += `<path d="${area}" fill="#27E8A7" opacity=".13"/>`;
+      html += `<path d="${d}" fill="none" stroke="#27E8A7" stroke-width="2.2" stroke-linecap="round"/>`;
+
+      // Peak marker
+      const pxx = pad.l + (peakD/dMax)*plotW;
+      const pyy = pad.t + (1 - peakV/pMax)*plotH;
+      html += `<line x1="${pxx}" y1="${pad.t}" x2="${pxx}" y2="${H-pad.b}" stroke="#EF4444" stroke-dasharray="3 3" stroke-width="1" opacity=".7"/>`;
+      html += `<circle cx="${pxx}" cy="${pyy}" r="4" fill="#EF4444"/>`;
+    }
+    svg.innerHTML = html;
+  }
+
+  // ---------- ANALYZE ----------
+  function renderAnalyze(){
+    renderHeatmap();
+    renderBalance();
+    renderGait();
+  }
+
+  function renderHeatmap(){
+    renderOneFoot('L', state.cur.l1, state.cur.l2, state.cur.l3);
+    renderOneFoot('R', state.cur.r1, state.cur.r2, state.cur.r3);
+  }
+  function renderOneFoot(side, v1, v2, v3){
+    const mapVal = (v, rmin=18, rmax=34) => rmin + Math.min(1, v/100)*(rmax-rmin);
+    const opac   = (v) => Math.max(0, Math.min(1, v/100));
+
+    $('zone'+side+'1').setAttribute('r', mapVal(v1));
+    $('zone'+side+'2').setAttribute('r', mapVal(v2, 14, 28));
+    $('zone'+side+'3').setAttribute('r', mapVal(v3));
+
+    $('zone'+side+'1').setAttribute('fill', interpColor('#2a2f35', '#3B82F6', v1/100));
+    $('zone'+side+'2').setAttribute('fill', interpColor('#2a2f35', '#F59E0B', v2/100));
+    $('zone'+side+'3').setAttribute('fill', interpColor('#2a2f35', '#EF4444', v3/100));
+
+    $('glow'+side+'1').setAttribute('r', 40 + v1*0.4);
+    $('glow'+side+'1').setAttribute('opacity', opac(v1)*0.6);
+    $('glow'+side+'2').setAttribute('r', 36 + v2*0.35);
+    $('glow'+side+'2').setAttribute('opacity', opac(v2)*0.5);
+    $('glow'+side+'3').setAttribute('r', 40 + v3*0.42);
+    $('glow'+side+'3').setAttribute('opacity', opac(v3)*0.6);
+
+    $('zTxt'+side+'1').textContent = Math.round(v1);
+    $('zTxt'+side+'2').textContent = Math.round(v2);
+    $('zTxt'+side+'3').textContent = Math.round(v3);
+  }
+
+  function interpColor(a, b, t){
+    t = Math.max(0, Math.min(1, t));
+    const pa = hexToRgb(a), pb = hexToRgb(b);
+    const r = Math.round(pa.r + (pb.r-pa.r)*t);
+    const g = Math.round(pa.g + (pb.g-pa.g)*t);
+    const bl= Math.round(pa.b + (pb.b-pa.b)*t);
+    return `rgb(${r},${g},${bl})`;
+  }
+  function hexToRgb(h){ h=h.replace('#',''); return {r:parseInt(h.substr(0,2),16),g:parseInt(h.substr(2,2),16),b:parseInt(h.substr(4,2),16)} }
+
+  function renderBalance(){
+    // Use session averages of COMBINED (L+R) per-position
+    const ps = state.sessionSamples;
+    if (ps.length < 3){
+      $('donutSvg').innerHTML = '<text x="80" y="84" text-anchor="middle" fill="#6b7075" font-size="11">collecting data</text>';
+      return;
+    }
+    let a=0,b=0,c=0, lSum=0, rSum=0;
+    for (const s of ps){
+      a += (s.l1+s.r1); b += (s.l2+s.r2); c += (s.l3+s.r3);
+      lSum += s.lsum;  rSum += s.rsum;
+    }
+    const tot = a+b+c || 1;
+    const p1 = a/tot, p2 = b/tot, p3 = c/tot;
+    $('pctS1').textContent = (p1*100).toFixed(0)+'%';
+    $('pctS2').textContent = (p2*100).toFixed(0)+'%';
+    $('pctS3').textContent = (p3*100).toFixed(0)+'%';
+    drawDonut('donutSvg', [
+      {v:p1, color:'#3B82F6'},
+      {v:p2, color:'#F59E0B'},
+      {v:p3, color:'#EF4444'}
+    ]);
+
+    // Classify overall
+    const maxKey = p1>p2&&p1>p3?'heel':(p3>p2?'forefoot':'midfoot');
+    $('strikePattern').textContent = maxKey + '-dominant';
+    // Imbalance badge
+    const balanced = Math.max(p1,p2,p3) - Math.min(p1,p2,p3) < 0.30;
+    const badge = $('balanceBadge');
+    if (balanced){ badge.className='badge good'; badge.textContent='Balanced'; }
+    else         { badge.className='badge warn'; badge.textContent='Imbalanced'; }
+
+    // L/R balance — computed from real session sums over both feet
+    const tLR = lSum + rSum || 1;
+    const lPct = Math.round(100*lSum/tLR);
+    const rPct = 100 - lPct;
+    state.lrL = lPct; state.lrR = rPct;
+    $('lrL').textContent = lPct;
+    $('lrR').textContent = rPct;
+    $('lrLkpa').textContent = Math.round(lSum / ps.length);
+    $('lrRkpa').textContent = Math.round(rSum / ps.length);
+    $('lrBarL').style.width = lPct + '%';
+    $('lrBarR').style.width = rPct + '%';
+    const asym = Math.abs(lPct - 50)*2;    // 0% perfect symmetry
+    $('lrAsym').textContent = asym + '%';
+    const lrBadge = $('lrBadge');
+    if (asym < 8){ lrBadge.className='badge good'; lrBadge.textContent='Symmetric'; }
+    else if (asym < 15){ lrBadge.className='badge warn'; lrBadge.textContent='Slight lean'; }
+    else { lrBadge.className='badge warn'; lrBadge.textContent='Imbalanced'; }
+  }
+
+  function drawDonut(svgId, segs){
+    const svg = $(svgId); if (!svg) return;
+    const cx=80, cy=80, r=62, w=16;
+    let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1b1e22" stroke-width="${w}"/>`;
+    let a0 = -Math.PI/2;
+    for (const s of segs){
+      const a1 = a0 + s.v*Math.PI*2;
+      if (s.v > 0.001){
+        const large = (a1-a0) > Math.PI ? 1 : 0;
+        const x0 = cx + r*Math.cos(a0), y0 = cy + r*Math.sin(a0);
+        const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+        html += `<path d="M ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1}" stroke="${s.color}" stroke-width="${w}" fill="none" stroke-linecap="butt"/>`;
+      }
+      a0 = a1;
+    }
+    // Center label
+    const peakPct = Math.round(Math.max(...segs.map(s=>s.v))*100);
+    html += `<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">${peakPct}%</text>`;
+    html += `<text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="10" fill="#9aa0a6" letter-spacing=".5">DOMINANT</text>`;
+    svg.innerHTML = html;
+  }
+
+  function renderGait(){
+    $('gStep').textContent    = state.stepCount;
+    $('gCad').textContent     = state.cadence || 0;
+    $('gStanceL').textContent = state.lastStanceMs.L || 0;
+    $('gStanceR').textContent = state.lastStanceMs.R || 0;
+    $('gPeak').textContent    = Math.round(state.peak.sum);
+
+    // Strike pattern per foot
+    const classify = (sideKey) => {
+      const {heel,mid,fore} = state.strikes[sideKey];
+      const tot = heel+mid+fore;
+      if (tot < 3) return ['—','awaiting data'];
+      const max = Math.max(heel,mid,fore);
+      if (max === heel) return ['Heel', 'lands on heel first'];
+      if (max === mid)  return ['Midfoot', 'balanced loading'];
+      return ['Forefoot', 'lands on ball of foot'];
+    };
+    const [sL, dL] = classify('L');
+    const [sR, dR] = classify('R');
+    $('strikerL').textContent = sL; $('strikerLdesc').textContent = dL;
+    $('strikerR').textContent = sR; $('strikerRdesc').textContent = dR;
+
+    // Symmetry badge: based on GCT difference
+    const diff = Math.abs((state.gctAvg.L||0) - (state.gctAvg.R||0));
+    const b = $('symBadge');
+    if (state.gctAvg.L && state.gctAvg.R){
+      if (diff < 20){ b.className='badge good'; b.textContent='Symmetric gait'; }
+      else if (diff < 40){ b.className='badge warn'; b.textContent='Slight asymmetry'; }
+      else { b.className='badge warn'; b.textContent='Asymmetric gait'; }
+    }
+
+    // Phase plot — show most recent cycle (either foot)
+    const svg = $('gaitCycleSvg'); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:10, r:10, b:18, l:30};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    // Pick whichever cycle is newer
+    let cyc = null, whichFoot = 'L/R';
+    const tL = state.lastCycleL ? state.lastCycleL[state.lastCycleL.length-1]?.t : -1;
+    const tR = state.lastCycleR ? state.lastCycleR[state.lastCycleR.length-1]?.t : -1;
+    if (state.lastStepT.L > state.lastStepT.R){ cyc = state.lastCycleL; whichFoot='Left'; }
+    else if (state.lastStepT.R > state.lastStepT.L){ cyc = state.lastCycleR; whichFoot='Right'; }
+    else { cyc = state.lastCycleL || state.lastCycleR; whichFoot = state.lastCycleL ? 'Left' : 'Right'; }
+    $('gaitFoot').textContent = whichFoot;
+    let html = '';
+    // Axes
+    const yS=3;
+    for (let i=0;i<=yS;i++){
+      const y = pad.t + plotH*i/yS;
+      const v = 120 - 120*i/yS;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="x-axis-label" x="${pad.l}" y="${H-4}">0%</text>`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-4}" text-anchor="end">100%</text>`;
+
+    if (cyc && cyc.length > 2){
+      const tMax = cyc[cyc.length-1].t || 1;
+      for (const key of ['s1','s2','s3']){
+        const color = key==='s1'?'#3B82F6':(key==='s2'?'#F59E0B':'#EF4444');
+        let d='';
+        for (let i=0;i<cyc.length;i++){
+          const x = pad.l + (cyc[i].t/tMax)*plotW;
+          const v = Math.max(0, Math.min(120, cyc[i][key]));
+          const y = pad.t + (1 - v/120)*plotH;
+          d += (i===0?'M ':' L ')+x.toFixed(1)+' '+y.toFixed(1);
+        }
+        html += `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round"/>`;
+      }
+    } else {
+      html += `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#6b7075" font-size="12">take a few steps…</text>`;
+    }
+    svg.innerHTML = html;
+  }
+
+  // ---------- NAVIGATION ----------
+  function gotoScreen(name){
+    currentScreen = name;
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const scr = document.getElementById('scr-'+name);
+    if (scr) scr.classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.screen===name));
+    document.getElementById('appMain').scrollTop = 0;
+  }
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => gotoScreen(t.dataset.screen));
+  });
+
+  // Analyze sub-tabs
+  document.querySelectorAll('#analyzeTabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#analyzeTabs button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelectorAll('.subpane').forEach(p=>p.classList.remove('active'));
+      document.getElementById('sub-'+b.dataset.sub).classList.add('active');
+    });
+  });
+
+  // ---------- CONTROLS ----------
+  $('btnStart').addEventListener('click', () => {
+    // Reset session
+    state.t0 = Date.now();
+    state.elapsed = 0;
+    state.stepCount = 0;
+    state.cadence = 0;
+    state.lastStepT = {L:0, R:0};
+    state.lastStanceMs = {L:0, R:0};
+    state.peak = {l1:0,l2:0,l3:0,r1:0,r2:0,r3:0,lsum:0,rsum:0,sum:0, s1:0,s2:0,s3:0};
+    state.pBuf = [];
+    state.sessionSamples = [];
+    state.gBuf = [];
+    state.lastCycleL = null; state.lastCycleR = null;
+    state.stanceStart = {L:-1, R:-1};
+    state.strikes = {L:{heel:0,mid:0,fore:0}, R:{heel:0,mid:0,fore:0}};
+    state.aBuf = []; state.hrBuf = []; state.joinBuf = [];
+    state.voCur = 0; state.voAvg = 0; state.speedAccel = 0;
+    state.gctHistory = {L:[], R:[]}; state.gctCur = {L:0,R:0}; state.gctAvg = {L:0,R:0};
+    state.hrCur = 70; state.hrMax = 70; state.hrSum = 0; state.hrN = 0;
+    state.altGain = 0; state.altLoss = 0; state.altMax = 0;
+    state.lrL = 50; state.lrR = 50; state.lrLkpa = 0; state.lrRkpa = 0;
+    state.running = true;
+  });
+  $('btnPause').addEventListener('click', () => {
+    state.running = !state.running;
+    $('btnPause').textContent = state.running ? '⏸  Pause' : '▶  Resume';
+  });
+
+  // ---------- BOOT ----------
+  $('hdrSub').textContent = SCREEN_TITLES.home.s;
+  startTimers();
+  renderLoop();
+})();
+</script>
+</body>
+</html>
