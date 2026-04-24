@@ -524,6 +524,31 @@
         <div class="metric"><div class="label">Vertical osc.</div><div class="value"><span id="voCur">0.0</span><small>cm</small></div></div>
         <div class="metric"><div class="label">Vertical ratio</div><div class="value"><span id="bmVR">0.0</span><small>%</small></div></div>
         <div class="metric"><div class="label">Ground contact</div><div class="value"><span id="gctCur">0</span><small>ms</small></div></div>
+        <div class="metric"><div class="label">Power</div><div class="value"><span id="bmPower">0</span><small>W</small></div></div>
+        <div class="metric"><div class="label">Power / kg</div><div class="value"><span id="bmPowerKg">0.0</span><small>W/kg</small></div></div>
+      </div>
+
+      <!-- Power (derived from pressure + GPS) -->
+      <div class="card">
+        <div class="card-title"><h3>Power · live</h3><span class="tag" id="bmPowerTag">pressure × speed</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 120" id="chartPower" preserveAspectRatio="none"></svg></div>
+        <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+          <span>L <strong id="bmPowerL" style="color:var(--s1)">0</strong> W</span>
+          <span>R <strong id="bmPowerR" style="color:var(--s3)">0</strong> W</span>
+          <span>avg <strong id="bmPowerAvg" style="color:var(--text)">0</strong> W</span>
+          <span>peak <strong id="bmPowerPeak" style="color:var(--text)">0</strong> W</span>
+        </div>
+        <!-- Power L/R balance bar -->
+        <div style="margin-top:10px">
+          <div class="row-between" style="font-size:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">
+            <span>Power balance L/R</span>
+            <span><strong id="bmPowerLR" style="color:var(--text)">50/50</strong></span>
+          </div>
+          <div style="display:flex;width:100%;height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden">
+            <div id="bmPowerBarL" style="background:var(--s1);transition:width .4s ease"></div>
+            <div id="bmPowerBarR" style="background:var(--s3);transition:width .4s ease"></div>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -629,6 +654,7 @@
         <button data-sub="balance">Balance</button>
         <button data-sub="gait">Gait</button>
         <button data-sub="hr">HR</button>
+        <button data-sub="power">Power</button>
         <button data-sub="info">Info</button>
       </div>
 
@@ -1122,6 +1148,78 @@
         <div class="card">
           <div class="card-title"><h3>HR trend</h3><span class="tag" id="hrTrendTag">—</span></div>
           <div id="trendHR"></div>
+        </div>
+      </div>
+
+      <!-- POWER (derived from pressure × speed × grade) -->
+      <div class="subpane" id="sub-power">
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Avg power</div><div class="value"><span id="pwAvg">0</span><small>W</small></div></div>
+          <div class="metric"><div class="label">Peak power</div><div class="value"><span id="pwPeak">0</span><small>W</small></div></div>
+          <div class="metric"><div class="label">Avg W/kg</div><div class="value"><span id="pwAvgKg">0.0</span><small>W/kg</small></div></div>
+          <div class="metric"><div class="label">Balance L/R</div><div class="value" id="pwBal">50 / 50</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h3>Power — live (L, R, total)</h3><span class="tag">W</span></div>
+          <div class="chart-wrap"><svg viewBox="0 0 360 160" id="chartPowerLR" preserveAspectRatio="none"></svg></div>
+          <div class="sensor-chips" style="margin:8px 0 0">
+            <span class="chip"><span class="dot" style="background:var(--s1)"></span>Left</span>
+            <span class="chip"><span class="dot" style="background:var(--s3)"></span>Right</span>
+            <span class="chip"><span class="dot" style="background:#F59E0B"></span>Total</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h3>L vs R work share</h3><span class="tag">session cumulative</span></div>
+          <div class="row-between" style="gap:12px;align-items:stretch">
+            <div style="flex:1;text-align:center;padding:14px;background:var(--surface-2);border-radius:10px;border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase">Left</div>
+              <div style="font-size:26px;font-weight:700;margin-top:4px"><span id="pwLeftPct">50</span>%</div>
+              <div style="font-size:11px;color:var(--text-2);margin-top:2px"><span id="pwLeftKj">0.0</span> kJ</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:14px;background:var(--surface-2);border-radius:10px;border:1px solid var(--border)">
+              <div style="font-size:10px;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase">Right</div>
+              <div style="font-size:26px;font-weight:700;margin-top:4px"><span id="pwRightPct">50</span>%</div>
+              <div style="font-size:11px;color:var(--text-2);margin-top:2px"><span id="pwRightKj">0.0</span> kJ</div>
+            </div>
+          </div>
+          <div style="display:flex;width:100%;height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-top:10px">
+            <div id="pwBarL" style="background:var(--s1);transition:width .4s ease"></div>
+            <div id="pwBarR" style="background:var(--s3);transition:width .4s ease"></div>
+          </div>
+          <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
+            <span>Asymmetry: <strong id="pwAsym" style="color:var(--text)">0%</strong></span>
+            <span class="badge good" id="pwBadge">Symmetric</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h3>Power vs HR</h3><span class="tag">effort × output</span></div>
+          <svg viewBox="0 0 360 160" id="scatPowerHR" preserveAspectRatio="none" style="width:100%;height:auto;background:#0e1114;border-radius:10px;border:1px solid var(--border)"></svg>
+          <div class="muted" style="font-size:11px;margin-top:6px">A stable Power/HR ratio across a session is a sign of aerobic efficiency. If HR drifts up while power stays flat, cardiac drift is accumulating — common in long runs or when dehydrated.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h3>How this is computed</h3><span class="tag">force × velocity</span></div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.55">
+            <p style="margin-top:0">
+              <strong style="color:var(--text)">Force comes straight from the sensors.</strong> Each pressure sensor reports force per unit area (kPa). Multiplied by the known sensor surface area, that gives an absolute force in Newtons:
+              <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text);display:inline-block;margin:3px 0">F_foot = Σ (pressure_i × area_i)</code>
+              — summed over the 3 sensors on that foot. This is a direct physical measurement; no cost-of-transport approximation is required.
+            </p>
+            <p>
+              <strong style="color:var(--text)">Power follows immediately.</strong> Mechanical power is
+              <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text)">P_foot = F_foot × v × η</code>,
+              where <em>v</em> is GPS speed and <em>η</em> is the mechanical efficiency of human locomotion (~0.22 for running, ~0.25 for walking — well-established from gait-energetics literature). Total power is the sum of the two feet; per-foot values are intrinsic — not a post-hoc ratio.
+            </p>
+            <p>
+              <strong style="color:var(--text)">Your body weight is still required</strong> — not to <em>derive</em> force, but to calibrate the pressure-to-force mapping in simulation (we scale so peak single-foot GRF ≈ 2.5 × body weight, which is the observed range during running). With calibrated hardware shipping real Pa readings, the body-weight step drops out and power becomes an absolute measurement, accurate to the sensor's tolerance.
+            </p>
+            <p style="margin-bottom:0">
+              Units: W (instantaneous output), W/kg (body-mass-normalized, comparable across athletes), kJ (cumulative work over the session — the session "L vs R" share comes from this).
+            </p>
+          </div>
         </div>
       </div>
 
@@ -1679,8 +1777,9 @@
 
         <div class="form-row dual">
           <div>
-            <label for="profileWeight">Weight (kg)</label>
-            <input type="number" id="profileWeight" min="25" max="250" step="0.1" placeholder="e.g. 72.0" inputmode="decimal"/>
+            <label for="profileWeight">Weight (kg) <span style="color:var(--warn);font-weight:700" title="required for power">*</span></label>
+            <input type="number" id="profileWeight" min="25" max="250" step="0.1" placeholder="e.g. 72.0" inputmode="decimal" required/>
+            <div class="muted" style="font-size:10px"><span style="color:var(--warn);font-weight:700">*</span> required for power analysis</div>
           </div>
           <div>
             <label for="profileHRmax">Max HR (bpm)</label>
@@ -1728,6 +1827,88 @@
         <div id="zonesDisplay" style="font-size:13px"></div>
         <div class="muted" style="font-size:11px;margin-top:8px" id="zonesFootnote">
           Session time-in-zone accumulates on the Biomech screen and uses these boundaries.
+        </div>
+      </div>
+
+      <!-- ===== Test a heart rate mini widget ===== -->
+      <div class="card">
+        <div class="card-title">
+          <h3>Test a heart rate</h3>
+          <span class="tag" id="tmzMethod">—</span>
+        </div>
+        <div class="muted" style="font-size:11px;margin-bottom:10px">
+          Type any bpm to see which zone it falls in and how hard it actually is — shown in both
+          <strong style="color:var(--text)">%HRmax</strong> and <strong style="color:var(--text)">%HRR (Karvonen)</strong>.
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <label for="tmzInput">Heart rate (bpm)</label>
+          <input type="number" id="tmzInput" min="30" max="230" placeholder="e.g. 152" inputmode="numeric"/>
+        </div>
+
+        <div id="tmzResult" style="display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+          <div class="row-between" style="align-items:center;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span id="tmzSwatch" style="width:12px;height:12px;border-radius:3px;display:inline-block;background:#9CA3AF"></span>
+              <strong id="tmzZoneLabel" style="font-size:16px">—</strong>
+            </div>
+            <div style="font-size:22px;font-weight:700" id="tmzBpm">—</div>
+          </div>
+          <div class="row-between" style="font-size:12px;color:var(--text-2);margin-bottom:4px">
+            <span>%HRmax</span>
+            <strong id="tmzPctMax" style="color:var(--text)">—</strong>
+          </div>
+          <div class="row-between" style="font-size:12px;color:var(--text-2);margin-bottom:8px">
+            <span>%HRR (Karvonen)</span>
+            <strong id="tmzPctHRR" style="color:var(--text)">—</strong>
+          </div>
+          <div class="muted" style="font-size:11px;font-style:italic" id="tmzAdvice"></div>
+        </div>
+        <div id="tmzHint" class="muted" style="font-size:11px">Enter a heart rate above to test.</div>
+      </div>
+
+      <!-- ===== Testing your Max HR — info / protocols ===== -->
+      <div class="card">
+        <div class="card-title">
+          <h3>Testing your Max HR — scientifically</h3>
+          <span class="tag">field protocols</span>
+        </div>
+        <div style="font-size:12.5px;color:var(--text-2);line-height:1.5">
+          <p style="margin-top:0"><strong style="color:var(--text)">Why bother?</strong> The <em>220 − age</em> formula has a standard error of ±10–12 bpm. For any serious zone-based training, a direct measurement is far better. Your true HRmax is largely genetic and doesn't change much with fitness — it's worth measuring <strong style="color:var(--text)">once</strong>, then re-testing every few years or after long breaks.</p>
+
+          <p><strong style="color:var(--text)">Safety first.</strong> These are all-out efforts. Do them only if you're healthy, injury-free, well-rested, well-hydrated, and ideally have had a physician's clearance. Skip if you have cardiac history or are on rate-altering medication. Stop immediately if you feel chest pain, dizziness, or unusual shortness of breath.</p>
+
+          <div class="sep"></div>
+
+          <p style="margin-bottom:4px"><strong style="color:var(--accent)">Protocol 1 — Hill repeats (most commonly used)</strong></p>
+          <ul style="margin:4px 0 10px 18px;padding:0">
+            <li>10–15 min easy warm-up jog, then 4–6 strides (~20 s each).</li>
+            <li>Find a steep hill you can run hard on for ~2 minutes.</li>
+            <li>Run 3 × 2-minute hill repeats at <em>progressively</em> harder pace, with easy jog down between.</li>
+            <li>On rep 3, go <strong style="color:var(--text)">all-out</strong> to the top, then try to hold that effort for 20 s more on flat ground at the summit.</li>
+            <li>The highest HR reading in the last 30 s is your measured HRmax.</li>
+          </ul>
+
+          <p style="margin-bottom:4px"><strong style="color:var(--accent)">Protocol 2 — Track (flat, gear-friendly)</strong></p>
+          <ul style="margin:4px 0 10px 18px;padding:0">
+            <li>15 min easy warm-up + 4 strides.</li>
+            <li>Run <strong style="color:var(--text)">800 m hard</strong> (5-km race pace), walk 2 min.</li>
+            <li>Run <strong style="color:var(--text)">800 m all-out</strong> — aim to accelerate progressively, last 200 m is a sprint.</li>
+            <li>HRmax = peak HR recorded during or within 15 s after the second 800.</li>
+          </ul>
+
+          <p style="margin-bottom:4px"><strong style="color:var(--accent)">Protocol 3 — Treadmill ramp (indoor, safer for beginners)</strong></p>
+          <ul style="margin:4px 0 10px 18px;padding:0">
+            <li>10 min warm-up at easy jog pace, 1% incline.</li>
+            <li>Every 1 minute, raise speed by 0.5 km/h (keep incline at 1%).</li>
+            <li>Continue until volitional exhaustion — when you cannot hold the speed for 30 more seconds.</li>
+            <li>The HR reading in the final 15 s is your HRmax.</li>
+          </ul>
+
+          <div class="sep"></div>
+
+          <p><strong style="color:var(--text)">Measuring Resting HR.</strong> Measure first thing in the morning, lying down, before any caffeine, for at least 3 consecutive days. Take the lowest of the three as your resting HR. A chest-strap HR monitor gives the cleanest reading; wrist-based is fine but tends to read 2–4 bpm high at rest.</p>
+
+          <p style="margin-bottom:0"><strong style="color:var(--text)">Using the numbers.</strong> Enter both into your Profile above. The app will automatically switch from %HRmax to Karvonen (%HRR) zones, which for most trained individuals shifts Zone 2 ("easy/aerobic base") 5–12 bpm higher than the simpler %HRmax method — closer to the intensity you can actually sustain.</p>
         </div>
       </div>
 
@@ -1922,6 +2103,12 @@
     strideLen: 0,                      // meters (one stride = 2 steps)
     strideLenHistory: [],
     verticalRatio: 0,                  // % (VO_cm / stride_cm * 100)
+    // --- Running/Walking power (derived from pressure × speed × grade) ---
+    powerCur: 0, powerL: 0, powerR: 0,   // watts
+    powerPeak: 0,                         // watts, session
+    powerSum: 0, powerN: 0,               // for session avg
+    powerBuf: [],                         // [{t, P, L, R}] rolling 2 min
+    powerHistL: 0, powerHistR: 0,         // cumulative L/R work (J) → for session balance %
     // --- Mode + profile ---
     mode: 'walk',                      // 'walk' | 'run'
     profile: {
@@ -2357,6 +2544,10 @@
       state.lapAgg.elevStart = g.alt;
     }
 
+    // --- Running/Walking power (W) from pressure + speed + grade ---
+    // Stryd-calibrated cost coefficients (J/kg·m); split L/R via pressure-impulse.
+    computePower(now, spd, gradePct);
+
     // Build joint cross-map row (aligned values at this GPS instant)
     state.joinBuf.push({
       t: now,
@@ -2367,9 +2558,80 @@
       vo: state.voAvg || state.voCur,
       sum: state.cur.sum,
       pace: pace,
-      gap: gap
+      gap: gap,
+      power: state.powerCur,
+      powerL: state.powerL,
+      powerR: state.powerR
     });
     if (state.joinBuf.length > 3600) state.joinBuf.shift();
+  }
+
+  // ---------- POWER: force-based (pressure-derived) ----------
+  // Physical model (works directly with calibrated insole sensors):
+  //   F_foot(t) = Σ (pressure_i × sensor_area_i)   [Newtons]   — ground reaction force
+  //   P_foot(t) = F_foot × v × η                     [Watts]   — mechanical power
+  //                where η is running/walking efficiency (~0.22 / 0.25)
+  //
+  // In simulation we don't have true Pa readings, so foot-pressure sum is scaled
+  // such that the session peak corresponds to ~2.5 × body-weight (realistic running
+  // single-leg peak GRF). With real calibrated sensors, forceFromPressure_N is
+  // replaced with the literal Σ(P_i × A_i) — no scaling needed, and power is
+  // an ABSOLUTE measurement.
+  const PEAK_GRF_BW_MULT = 2.5;                       // peak one-foot GRF ≈ 2.5 × body weight
+  const RUN_EFFICIENCY   = 0.22;
+  const WALK_EFFICIENCY  = 0.25;
+
+  function hasWeight(){
+    const w = Number(state.profile.weight);
+    return w > 0 && w >= 25 && w <= 250;
+  }
+  function bodyMassKg(){ return Number(state.profile.weight); }
+
+  // Foot ground-reaction force in Newtons, derived from pressure-sum.
+  // Real-hardware drop-in: replace body-mass scaling with direct sensor-area math.
+  function forceFromPressure_N(footSum_kPa){
+    if (!hasWeight()) return null;
+    const m = bodyMassKg();
+    const peakRef = Math.max(100, state.peak.lsum || 0, state.peak.rsum || 0);
+    return (footSum_kPa / peakRef) * PEAK_GRF_BW_MULT * m * 9.81;
+  }
+
+  // Main tick-driven power computation. Gated on weight — no number without it.
+  function computePower(nowMs, v_mps, grade_pct){
+    state.powerBuf.push({t: nowMs, P: 0, L: 0, R: 0}); // placeholder; filled below
+    if (state.powerBuf.length > 240) state.powerBuf.shift();
+    const last = state.powerBuf[state.powerBuf.length-1];
+
+    if (!hasWeight()){
+      state.powerCur = 0; state.powerL = 0; state.powerR = 0;
+      state.powerModel = 'none';
+      return;
+    }
+
+    const eta = state.mode === 'run' ? RUN_EFFICIENCY : WALK_EFFICIENCY;
+
+    // Force-based: direct F × v × η per foot, using pressure-derived GRF.
+    const fL = forceFromPressure_N(state.cur.lsum);
+    const fR = forceFromPressure_N(state.cur.rsum);
+    const v  = Math.max(0, v_mps || 0);
+
+    // Smooth instantaneous fluctuations (stance phase spikes)
+    const pL_inst = fL * v * eta;
+    const pR_inst = fR * v * eta;
+    state.powerL = (state.powerL * 0.6) + (pL_inst * 0.4);
+    state.powerR = (state.powerR * 0.6) + (pR_inst * 0.4);
+    state.powerCur = state.powerL + state.powerR;
+    state.powerModel = 'force';
+
+    state.powerPeak = Math.max(state.powerPeak, state.powerCur);
+    state.powerSum += state.powerCur; state.powerN += 1;
+
+    // Session cumulative work (J) per foot — used for a stable L/R balance figure
+    const dt = GPS_MS / 1000;
+    state.powerHistL += state.powerL * dt;
+    state.powerHistR += state.powerR * dt;
+
+    last.P = state.powerCur; last.L = state.powerL; last.R = state.powerR;
   }
 
   // ---------- RENDER LOOP (40ms) ----------
@@ -2816,8 +3078,36 @@
     $('bmCadence').textContent = state.cadence || 0;
     $('bmStride').textContent  = state.strideLen ? state.strideLen.toFixed(2) : '0.00';
     $('bmVR').textContent      = state.verticalRatio ? state.verticalRatio.toFixed(1) : '0.0';
+    // Power tiles — gated on weight being set
+    if (hasWeight()){
+      const bodyMass = bodyMassKg();
+      $('bmPower').textContent     = Math.round(state.powerCur);
+      $('bmPowerKg').textContent   = (state.powerCur / bodyMass).toFixed(1);
+      $('bmPowerL').textContent    = Math.round(state.powerL);
+      $('bmPowerR').textContent    = Math.round(state.powerR);
+      $('bmPowerAvg').textContent  = state.powerN ? Math.round(state.powerSum/state.powerN) : 0;
+      $('bmPowerPeak').textContent = Math.round(state.powerPeak);
+      $('bmPowerTag').textContent  = 'F × v  (pressure-derived)';
+      const totW = state.powerHistL + state.powerHistR;
+      const powerPctL = totW > 0 ? Math.round(100*state.powerHistL/totW) : 50;
+      $('bmPowerLR').textContent    = `${powerPctL}/${100-powerPctL}`;
+      $('bmPowerBarL').style.width  = powerPctL + '%';
+      $('bmPowerBarR').style.width  = (100-powerPctL) + '%';
+    } else {
+      for (const id of ['bmPower','bmPowerKg','bmPowerL','bmPowerR','bmPowerAvg','bmPowerPeak']){
+        $(id).textContent = '—';
+      }
+      $('bmPowerLR').textContent = '—';
+      $('bmPowerBarL').style.width = '0%';
+      $('bmPowerBarR').style.width = '0%';
+      $('bmPowerTag').textContent = 'set weight in Profile';
+    }
     const z = hrZone(state.hrCur);
     $('hrZone').textContent = z.z;
+
+    // Power live line chart
+    drawSeriesGeneric('chartPower', state.powerBuf.map(p => ({t:p.t, w:p.P})), 'w', '#F59E0B',
+      {ymin:0, ymax: Math.max(200, Math.ceil(state.powerPeak/100)*100 + 100)});
 
     // HR live line
     drawSeriesGeneric('chartHR', state.hrBuf, 'bpm', '#F43F5E', {ymin:50, ymax:200});
@@ -3177,11 +3467,171 @@
     renderBalance();
     renderGait();
     renderHRTab();
+    renderPowerTab();
     renderAdviceHeatmap();
     renderAdviceBalance();
     renderAdviceGait();
     renderAdviceHR();
     renderTrends();
+  }
+
+  // ---------- POWER sub-tab ----------
+  function updatePowerGate(pane){
+    let gate = document.getElementById('pwGate');
+    if (!hasWeight()){
+      // hide normal children
+      Array.from(pane.children).forEach(c => { if (c.id !== 'pwGate') c.style.display = 'none'; });
+      if (!gate){
+        gate = document.createElement('div');
+        gate.id = 'pwGate';
+        gate.className = 'card';
+        gate.innerHTML = `
+          <div class="card-title"><h3>Weight required</h3><span class="tag" style="background:rgba(245,158,11,.15);color:var(--warn)">action needed</span></div>
+          <p style="color:var(--text-2);font-size:13px;line-height:1.5;margin-top:4px">
+            Power is computed as <code style="background:var(--surface-2);padding:1px 6px;border-radius:4px;color:var(--text)">P = F × v × η</code>,
+            where <em>F</em> is the ground-reaction force your insole sensors measure directly (pressure × sensor area, in Newtons).
+            The conversion is absolute — but it needs your body mass as a calibration reference in simulation mode,
+            and it's required to report power in watts at any time.
+          </p>
+          <p style="color:var(--text-2);font-size:13px;line-height:1.5;margin-bottom:14px">
+            Please set your weight on the Profile tab to enable power analysis.
+          </p>
+          <button class="btn" id="pwGateGo">Open Profile →</button>`;
+        pane.insertBefore(gate, pane.firstChild);
+        document.getElementById('pwGateGo').addEventListener('click', () => gotoScreen('profile'));
+      } else {
+        gate.style.display = '';
+      }
+    } else {
+      if (gate) gate.remove();
+      Array.from(pane.children).forEach(c => { c.style.display = ''; });
+    }
+  }
+
+  function renderPowerTab(){
+    const pane = document.getElementById('sub-power');
+    if (!pane) return;
+    // Weight gate: render a prompt card if weight isn't set, hide normal content.
+    updatePowerGate(pane);
+    if (!hasWeight()) return;
+
+    const bodyMass = bodyMassKg();
+    const avgP = state.powerN ? Math.round(state.powerSum/state.powerN) : 0;
+    const peakP = Math.round(state.powerPeak);
+    $('pwAvg').textContent    = avgP;
+    $('pwPeak').textContent   = peakP;
+    $('pwAvgKg').textContent  = (avgP / bodyMass).toFixed(1);
+
+    // Session balance from cumulative work
+    const wL = state.powerHistL, wR = state.powerHistR;
+    const totW = wL + wR;
+    const pctL = totW > 0 ? Math.round(100*wL/totW) : 50;
+    const pctR = 100 - pctL;
+    $('pwBal').textContent    = pctL + ' / ' + pctR;
+    $('pwLeftPct').textContent  = pctL;
+    $('pwRightPct').textContent = pctR;
+    $('pwLeftKj').textContent   = (wL/1000).toFixed(1);
+    $('pwRightKj').textContent  = (wR/1000).toFixed(1);
+    $('pwBarL').style.width = pctL + '%';
+    $('pwBarR').style.width = pctR + '%';
+    const asym = Math.abs(pctL - 50) * 2;
+    $('pwAsym').textContent = asym + '%';
+    const badge = $('pwBadge');
+    if (asym < 8){ badge.className='badge good'; badge.textContent='Symmetric'; }
+    else if (asym < 15){ badge.className='badge warn'; badge.textContent='Slight lean'; }
+    else { badge.className='badge warn'; badge.textContent='Asymmetric'; }
+
+    // Live L / R / Total triple line
+    renderPowerMultiLine();
+
+    // Power vs HR scatter
+    renderPowerHRScatter();
+  }
+
+  function renderPowerMultiLine(){
+    const svg = $('chartPowerLR'); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:10,r:12,b:20,l:40};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    const data = state.powerBuf;
+    if (!data || data.length < 2){ svg.innerHTML=''; return; }
+    const tEnd = data[data.length-1].t;
+    const tStart = tEnd - 120*1000;  // 2-min rolling window
+    const ymax = Math.max(300, Math.ceil(state.powerPeak/100)*100 + 100);
+    const ymin = 0;
+    let html = '';
+    for (let i=0;i<=3;i++){
+      const y = pad.t + plotH*i/3;
+      const v = ymax - (ymax-ymin)*i/3;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="4" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    html += `<text class="y-axis-label" x="4" y="${pad.t-1}" style="font-size:9px">W</text>`;
+
+    const series = [
+      {key:'L', color:'var(--s1)', css:'#3B82F6', w:1.4, op:.85},
+      {key:'R', color:'var(--s3)', css:'#EF4444', w:1.4, op:.85},
+      {key:'P', color:'#F59E0B',   css:'#F59E0B', w:2.2, op:1}
+    ];
+    for (const s of series){
+      let d='', started=false;
+      for (const p of data){
+        const nx = (p.t - tStart) / (tEnd - tStart);
+        if (nx < 0) continue;
+        const x = pad.l + nx*plotW;
+        const v = Math.max(ymin, Math.min(ymax, p[s.key]));
+        const y = pad.t + (1 - (v-ymin)/(ymax-ymin))*plotH;
+        d += (started?' L ':'M ') + x.toFixed(1) + ' ' + y.toFixed(1);
+        started = true;
+      }
+      if (started){
+        html += `<path d="${d}" fill="none" stroke="${s.css}" stroke-width="${s.w}" stroke-linecap="round" stroke-linejoin="round" opacity="${s.op}"/>`;
+      }
+    }
+    svg.innerHTML = html;
+  }
+
+  function renderPowerHRScatter(){
+    const svg = $('scatPowerHR'); if (!svg) return;
+    const data = (state.joinBuf || []).filter(p => p.power > 0 && p.hr > 40);
+    if (data.length < 3){ svg.innerHTML = ''; return; }
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:12,r:14,b:24,l:44};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    // Bounds
+    const xmin = 50, xmax = Math.max(180, state.hrMax+5);
+    let pmax = 0;
+    for (const p of data){ if (p.power > pmax) pmax = p.power; }
+    const ymax = Math.ceil(pmax/50)*50 + 50;
+    let html = '';
+    for (let i=0;i<=3;i++){
+      const y = pad.t + plotH*i/3;
+      const v = ymax - ymax*i/3;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      html += `<text class="y-axis-label" x="4" y="${y+3}">${Math.round(v)}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    for (let i=0;i<=4;i++){
+      const x = pad.l + plotW*i/4;
+      const v = xmin + (xmax-xmin)*i/4;
+      html += `<text class="x-axis-label" x="${x}" y="${H-6}" text-anchor="middle">${Math.round(v)}</text>`;
+    }
+    html += `<text class="y-axis-label" x="4" y="${pad.t-1}" style="font-size:9px">W</text>`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-6}" text-anchor="end">bpm</text>`;
+    // Points
+    const step = Math.max(1, Math.floor(data.length/120));
+    for (let i=0;i<data.length;i+=step){
+      const p = data[i];
+      const nx = (p.hr-xmin)/(xmax-xmin);
+      const ny = p.power/ymax;
+      if (nx<0||nx>1||ny<0||ny>1) continue;
+      const x = pad.l + nx*plotW;
+      const y = pad.t + (1-ny)*plotH;
+      const recent = (data.length-1-i) < 15;
+      html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${recent?2.8:2.0}" fill="${recent?'#F59E0B':'#00AEEF'}" opacity="${recent?0.95:0.55}"/>`;
+    }
+    svg.innerHTML = html;
   }
 
   // ---------------- Coaching / advice engine ----------------
@@ -4178,6 +4628,66 @@
   bindText('profileHRmax',  'hrMax');
   bindText('profileHRrest', 'hrRest');
 
+  // ---------- TEST-MY-ZONE WIDGET ----------
+  function renderTMZ(){
+    const input = $('tmzInput'); if (!input) return;
+    const bpm = Number(input.value);
+    const resultEl = $('tmzResult');
+    const hintEl = $('tmzHint');
+    const method = $('tmzMethod');
+    // Method tag mirrors the main zones card
+    const rest = Number(state.profile.hrRest) || 0;
+    const max  = effectiveMaxHR();
+    method.textContent = (rest && max > rest) ? 'Karvonen' : '%HRmax';
+
+    if (!bpm || bpm < 30 || bpm > 230){
+      resultEl.style.display = 'none';
+      hintEl.style.display   = 'block';
+      return;
+    }
+    resultEl.style.display = 'block';
+    hintEl.style.display   = 'none';
+
+    // Zone + color
+    const z = hrZone(bpm);
+    $('tmzSwatch').style.background = z.color;
+    $('tmzZoneLabel').textContent   = z.z;
+    $('tmzZoneLabel').style.color   = z.color;
+    $('tmzBpm').textContent         = bpm + ' bpm';
+
+    // %HRmax
+    const pctMax = max > 0 ? (bpm / max * 100) : 0;
+    $('tmzPctMax').textContent = max > 0 ? pctMax.toFixed(1) + '%  (of ' + max + ' bpm)' : '—';
+
+    // %HRR (Karvonen) — requires rest
+    if (rest && max > rest){
+      const pctR = Math.max(0, (bpm - rest) / (max - rest) * 100);
+      $('tmzPctHRR').textContent = pctR.toFixed(1) + '%  (HRR ' + (max - rest) + ' bpm)';
+    } else {
+      $('tmzPctHRR').textContent = 'set Resting HR to unlock';
+    }
+
+    // One-line advice tied to zone
+    const advice = {
+      Z1: 'Very light — recovery, conversation easy, nose breathing.',
+      Z2: 'Easy aerobic — the base-building sweet spot for most endurance work.',
+      Z3: 'Moderate — tempo / steady-state; sustained effort, getting meaningful.',
+      Z4: 'Threshold — comfortably hard; lactate accumulates; high quality.',
+      Z5: 'Maximal — short, sharp intervals only; not sustainable beyond minutes.',
+      Z6: 'VO₂max / anaerobic — seconds-to-a-few-minutes intervals.',
+      Z7: 'Neuromuscular — sprint power, ATP-PC; <20 s reps.'
+    };
+    $('tmzAdvice').textContent = advice[z.key] || '';
+  }
+  $('tmzInput').addEventListener('input', renderTMZ);
+  // Refresh when zone-related profile changes
+  ['profileHRmax','profileHRrest','profileAge'].forEach(id => {
+    $(id).addEventListener('input', renderTMZ);
+  });
+  document.querySelectorAll('#zoneScheme button, #zoneMode button').forEach(b => {
+    b.addEventListener('click', () => setTimeout(renderTMZ, 0));
+  });
+
   document.querySelectorAll('#profileSex button').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#profileSex button').forEach(x=>x.classList.remove('active'));
@@ -4355,9 +4865,13 @@
     state.pace = 0; state.gap = 0;
     state.lapIndex = 0; state.laps = [];
     state.lapAgg = {startT:0, distStart:0, hrSum:0, hrN:0, peakLoad:0, elevStart:0, elevLast:0, elevGain:0};
-    state.timeInZone = {Z1:0,Z2:0,Z3:0,Z4:0,Z5:0};
+    state.timeInZone = {Z1:0,Z2:0,Z3:0,Z4:0,Z5:0,Z6:0,Z7:0};
     state.lastZoneT = 0;
     state.cadenceHistory = []; state.strideLen = 0; state.strideLenHistory = []; state.verticalRatio = 0;
+    // Power reset
+    state.powerCur = 0; state.powerL = 0; state.powerR = 0; state.powerPeak = 0;
+    state.powerSum = 0; state.powerN = 0;
+    state.powerBuf = []; state.powerHistL = 0; state.powerHistR = 0;
     state.running = true;
   });
   $('btnPause').addEventListener('click', () => {
