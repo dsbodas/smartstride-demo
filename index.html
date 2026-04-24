@@ -126,7 +126,7 @@
 
   /* Tabs bar */
   .tab-bar{
-    display:grid;grid-template-columns:repeat(5,1fr);
+    display:grid;grid-template-columns:repeat(6,1fr);
     border-top:1px solid var(--border);
     background:#0b0d10;
     padding:8px 2px calc(10px + env(safe-area-inset-bottom,0px));
@@ -134,11 +134,70 @@
   }
   .tab{
     background:none;border:0;outline:none;color:var(--text-3);
-    display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;
-    font-family:inherit;font-size:9.5px;font-weight:500;letter-spacing:.2px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 1px;cursor:pointer;
+    font-family:inherit;font-size:9px;font-weight:500;letter-spacing:.1px;
     transition:color .18s ease;
   }
-  .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .tab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  /* Mode toggle */
+  .mode-toggle{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:3px;margin-left:auto}
+  .mode-toggle button{background:transparent;border:0;color:var(--text-2);font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.3px;padding:6px 14px;border-radius:999px;cursor:pointer;text-transform:uppercase}
+  .mode-toggle button.active{background:var(--accent);color:#00131a}
+
+  /* Profile form */
+  .form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+  .form-row label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-2);font-weight:600}
+  .form-row input[type=text], .form-row input[type=number], .form-row select{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    padding:10px 12px;border-radius:10px;font-family:inherit;font-size:14px;
+    -webkit-appearance:none;appearance:none;outline:none;
+  }
+  .form-row input:focus, .form-row select:focus{border-color:var(--accent)}
+  .form-row.dual{flex-direction:row;gap:10px}
+  .form-row.dual > div{flex:1;display:flex;flex-direction:column;gap:4px}
+  .segmented{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px}
+  .segmented button{flex:1;background:transparent;border:0;color:var(--text-2);font-family:inherit;font-size:13px;font-weight:600;padding:9px 4px;border-radius:7px;cursor:pointer}
+  .segmented button.active{background:var(--accent);color:#00131a}
+  .avatar-upload{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .avatar-upload .ring{width:80px;height:80px;border-radius:50%;background:var(--surface-2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:24px;font-weight:700;color:var(--text-2);font-family:var(--font-title)}
+  .avatar-upload .ring img{width:100%;height:100%;object-fit:cover}
+  .avatar-upload input[type=file]{display:none}
+  .avatar-upload .btn-file{background:var(--surface-2);color:var(--text);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer}
+  .saved-chip{display:inline-block;padding:3px 10px;background:rgba(39,232,167,.12);color:var(--collective);border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;opacity:0;transition:opacity .3s}
+  .saved-chip.show{opacity:1}
+
+  /* Shoe color picker */
+  .color-picker{display:flex;gap:6px;padding:0}
+  .color-picker button{flex:1;height:34px;border:2px solid transparent;border-radius:8px;cursor:pointer;position:relative;padding:0}
+  .color-picker button.active{border-color:var(--text);box-shadow:0 0 0 1px #000 inset}
+  .color-picker button.active::after{content:'';position:absolute;top:50%;left:50%;width:8px;height:8px;border-radius:50%;background:var(--text);transform:translate(-50%,-50%)}
+
+  /* Shoe row */
+  .shoe-row{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+  .shoe-row .avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .shoe-row.retired .name{color:var(--text-2);text-decoration:line-through}
+  .shoe-actions{display:flex;gap:6px;margin-top:8px}
+  .shoe-actions button{flex:1;padding:7px 8px;font-size:11px;font-weight:600;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:inherit}
+  .shoe-actions button.danger{flex:0 0 auto;padding:7px 10px;color:var(--danger)}
+  .shoe-actions button:active{transform:scale(.97)}
+
+  .home-shoe-chip{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;font-size:12px}
+  .home-shoe-chip .sw{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+  .home-shoe-chip .body{flex:1;min-width:0}
+  .home-shoe-chip .nick{color:var(--text);font-weight:600}
+  .home-shoe-chip .km{color:var(--text-2);font-size:11px;margin-top:1px}
+  .home-shoe-chip .pct{font-weight:700;font-size:14px}
+
+  /* Learn (gait education) */
+  .learn-pane{display:none}
+  .learn-pane.active{display:block}
+  .issue-row{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+  .issue-row:last-child{border-bottom:none}
+  .issue-row svg{flex:0 0 120px;background:#0e1114;border:1px solid var(--border);border-radius:8px}
+  .issue-row .issue-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:4px}
+  .issue-row .issue-body{font-size:11.5px;line-height:1.55;color:var(--text-2)}
+  .issue-row .issue-body .fix{color:var(--accent);margin-left:4px}
   .tab.active{color:var(--accent)}
   .tab:active{transform:scale(.95)}
 
@@ -221,8 +280,22 @@
     <!-- ================== HOME ================== -->
     <section class="screen active" id="scr-home">
       <div class="hero">
-        <div class="greet">Good morning</div>
-        <div class="user">Dhananjay</div>
+        <div class="row-between" style="margin-bottom:2px">
+          <div class="greet" id="heroGreet">Good morning</div>
+          <div class="mode-toggle" id="modeToggle" style="margin-left:auto">
+            <button class="active" data-mode="walk">Walk</button>
+            <button data-mode="run">Run</button>
+          </div>
+        </div>
+        <div class="user" id="heroName">Dhananjay</div>
+        <div class="home-shoe-chip" id="homeShoeChip" style="display:none">
+          <span class="sw" id="hsColor"></span>
+          <div class="body">
+            <div class="nick" id="hsNick">—</div>
+            <div class="km" id="hsKm">0 / 0 km · 0 days old</div>
+          </div>
+          <span class="pct" id="hsPct">0%</span>
+        </div>
         <div class="hero-stats">
           <div class="stat">
             <div class="v" id="heroSteps">0</div>
@@ -459,6 +532,8 @@
           <div id="tizZ3" style="background:#10B981"></div>
           <div id="tizZ4" style="background:#F59E0B"></div>
           <div id="tizZ5" style="background:#EF4444"></div>
+          <div id="tizZ6" style="background:#B91C1C"></div>
+          <div id="tizZ7" style="background:#7F1D1D"></div>
         </div>
         <div id="tizRows" style="font-size:11.5px"></div>
       </div>
@@ -516,10 +591,36 @@
 
     <!-- ================== ANALYZE ================== -->
     <section class="screen" id="scr-analyze">
+      <!-- Filter bar (time window + activity) -->
+      <div class="card" style="padding:10px 12px;margin-bottom:10px">
+        <div class="row-between" style="gap:10px;align-items:center">
+          <div style="font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--text-2);font-weight:600">Trend window</div>
+          <div class="row-between" style="gap:6px">
+            <span class="muted" style="font-size:11px">Activity:</span>
+            <select id="trendMode" style="background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:5px 8px;font-family:inherit;font-size:12px">
+              <option value="all">All</option>
+              <option value="walk">Walk</option>
+              <option value="run">Run</option>
+            </select>
+          </div>
+        </div>
+        <div class="segmented" id="trendWindow" style="margin-top:8px">
+          <button class="active" data-win="30">1 M</button>
+          <button data-win="90">3 M</button>
+          <button data-win="180">6 M</button>
+          <button data-win="365">1 Y</button>
+          <button data-win="1095">3 Y</button>
+          <button data-win="1825">5 Y</button>
+          <button data-win="99999">All</button>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:6px" id="trendSummary">No past sessions yet — finish a session (Start again) to build history.</div>
+      </div>
+
       <div class="subtabs" id="analyzeTabs">
         <button class="active" data-sub="heatmap">Heatmap</button>
         <button data-sub="balance">Balance</button>
         <button data-sub="gait">Gait</button>
+        <button data-sub="hr">HR</button>
       </div>
 
       <!-- HEATMAP -->
@@ -588,6 +689,16 @@
             <div class="zone"><span class="swatch" style="background:var(--s1)"></span>Heel</div>
           </div>
         </div>
+
+        <!-- Heatmap coaching / advice -->
+        <div class="card">
+          <div class="card-title"><h3>Coaching insights</h3><span class="tag">foot-loading</span></div>
+          <div id="adviceHeatmap"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Heatmap trend</h3><span class="tag" id="heatTrendTag">—</span></div>
+          <div id="trendHeatmap"></div>
+        </div>
       </div>
 
       <!-- BALANCE -->
@@ -633,6 +744,16 @@
           </div>
           <div class="muted" style="font-size:10px;margin-top:8px">Both insoles reporting. Lsum = L1+L2+L3, Rsum = R1+R2+R3.</div>
         </div>
+
+        <!-- Balance coaching / advice -->
+        <div class="card">
+          <div class="card-title"><h3>Coaching insights</h3><span class="tag">L/R · zones</span></div>
+          <div id="adviceBalance"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Balance trend</h3><span class="tag" id="balTrendTag">—</span></div>
+          <div id="trendBalance"></div>
+        </div>
       </div>
 
       <!-- GAIT -->
@@ -671,6 +792,488 @@
             <span class="badge good" id="symBadge">Symmetric gait</span>
           </div>
         </div>
+
+        <!-- Gait coaching / advice -->
+        <div class="card">
+          <div class="card-title"><h3>Coaching insights</h3><span class="tag">from sensors</span></div>
+          <div id="adviceGait"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Gait trend</h3><span class="tag" id="gaitTrendTag">—</span></div>
+          <div id="trendGait"></div>
+        </div>
+
+        <!-- Understanding gait — educational section -->
+        <div class="card">
+          <div class="card-title"><h3>Understanding gait</h3><span class="tag">learn</span></div>
+
+          <div class="subtabs" id="gaitLearnTabs" style="margin-bottom:12px">
+            <button class="active" data-learn="walk">Walking</button>
+            <button data-learn="run">Running</button>
+            <button data-learn="issues">Common issues</button>
+          </div>
+
+          <!-- Walking gait phases -->
+          <div class="learn-pane active" id="learn-walk">
+            <div style="background:#0e1114;border:1px solid var(--border);border-radius:10px;padding:12px 6px;margin-bottom:10px">
+              <svg viewBox="0 0 520 160" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                <!-- Ground line -->
+                <line x1="0" y1="140" x2="520" y2="140" stroke="#334050" stroke-width="1.2"/>
+                <!-- 4 stick figures: heel strike, midstance, push-off, swing -->
+                <!-- 1. Heel strike -->
+                <g transform="translate(50,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="35" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="44" x2="25" y2="90"/>
+                  <line x1="25" y1="90" x2="15" y2="138"/>
+                  <line x1="25" y1="90" x2="40" y2="120"/>
+                  <line x1="40" y1="120" x2="55" y2="140"/>
+                  <!-- arms -->
+                  <line x1="25" y1="60" x2="10" y2="85"/>
+                  <line x1="25" y1="60" x2="40" y2="78"/>
+                  <!-- Heel strike highlight: red foot -->
+                  <circle cx="55" cy="140" r="5" fill="#EF4444" stroke="none"/>
+                </g>
+                <text x="80" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Heel strike</text>
+                <!-- 2. Midstance -->
+                <g transform="translate(175,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="30" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="39" x2="25" y2="90"/>
+                  <line x1="25" y1="90" x2="25" y2="138"/>
+                  <line x1="25" y1="90" x2="35" y2="138"/>
+                  <line x1="25" y1="60" x2="15" y2="85"/>
+                  <line x1="25" y1="60" x2="35" y2="85"/>
+                  <!-- midfoot weight -->
+                  <circle cx="25" cy="140" r="5" fill="#F59E0B" stroke="none"/>
+                </g>
+                <text x="205" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Midstance</text>
+                <!-- 3. Push-off -->
+                <g transform="translate(300,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="35" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="44" x2="22" y2="90"/>
+                  <line x1="22" y1="90" x2="5" y2="138"/>
+                  <line x1="22" y1="90" x2="45" y2="115"/>
+                  <line x1="45" y1="115" x2="55" y2="140"/>
+                  <line x1="22" y1="60" x2="38" y2="85"/>
+                  <line x1="22" y1="60" x2="8" y2="80"/>
+                  <circle cx="5" cy="140" r="5" fill="#3B82F6" stroke="none"/>
+                </g>
+                <text x="330" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Push-off</text>
+                <!-- 4. Swing -->
+                <g transform="translate(425,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="35" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="44" x2="25" y2="90"/>
+                  <line x1="25" y1="90" x2="40" y2="115"/>
+                  <line x1="40" y1="115" x2="50" y2="140"/>
+                  <line x1="25" y1="90" x2="5" y2="120"/>
+                  <line x1="25" y1="60" x2="12" y2="82"/>
+                  <line x1="25" y1="60" x2="40" y2="82"/>
+                </g>
+                <text x="460" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Swing</text>
+
+                <!-- Phase labels -->
+                <rect x="14" y="8" width="284" height="14" fill="#10B981" opacity="0.2" rx="2"/>
+                <text x="156" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#10B981">STANCE PHASE (~60% of cycle)</text>
+                <rect x="300" y="8" width="212" height="14" fill="#3B82F6" opacity="0.2" rx="2"/>
+                <text x="406" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#3B82F6">SWING (~40%)</text>
+              </svg>
+            </div>
+            <div style="font-size:12.5px;line-height:1.55;color:var(--text-2)">
+              <p style="margin:0 0 8px"><strong style="color:var(--text)">What good walking looks like:</strong> heel contacts first (lateral side), weight rolls smoothly through the midfoot, toes push off last. Stride length matches your height — don't over-reach. Cadence 100–125 spm for moderate pace.</p>
+              <p style="margin:0 0 8px"><strong style="color:var(--text)">Signals on this app:</strong> S1 (heel) peaks first, S2 (midfoot) next, S3 (forefoot) last — each cleanly separated. L/R load share stays close to 50/50 over a session.</p>
+              <p style="margin:0"><strong style="color:var(--text)">Double-support:</strong> walkers always have at least one foot on the ground. The stance phase overlap with the other foot is ~10% of cycle per step.</p>
+            </div>
+          </div>
+
+          <!-- Running gait phases -->
+          <div class="learn-pane" id="learn-run">
+            <div style="background:#0e1114;border:1px solid var(--border);border-radius:10px;padding:12px 6px;margin-bottom:10px">
+              <svg viewBox="0 0 520 160" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                <line x1="0" y1="140" x2="520" y2="140" stroke="#334050" stroke-width="1.2"/>
+                <!-- 1. Initial contact (midfoot) -->
+                <g transform="translate(40,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="30" cy="28" r="9" fill="#94A3B8"/>
+                  <line x1="30" y1="37" x2="28" y2="85"/>
+                  <line x1="28" y1="85" x2="30" y2="138"/>
+                  <line x1="28" y1="85" x2="50" y2="118"/>
+                  <line x1="50" y1="118" x2="62" y2="95"/>
+                  <line x1="30" y1="55" x2="10" y2="75"/>
+                  <line x1="30" y1="55" x2="52" y2="78"/>
+                  <circle cx="30" cy="140" r="5" fill="#F59E0B" stroke="none"/>
+                </g>
+                <text x="80" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Initial contact</text>
+                <!-- 2. Midstance -->
+                <g transform="translate(170,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="24" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="33" x2="25" y2="85"/>
+                  <line x1="25" y1="85" x2="25" y2="138"/>
+                  <line x1="25" y1="85" x2="42" y2="112"/>
+                  <line x1="42" y1="112" x2="55" y2="95"/>
+                  <line x1="25" y1="50" x2="8" y2="68"/>
+                  <line x1="25" y1="50" x2="42" y2="68"/>
+                  <circle cx="25" cy="140" r="5" fill="#F59E0B" stroke="none"/>
+                </g>
+                <text x="200" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Midstance</text>
+                <!-- 3. Toe-off -->
+                <g transform="translate(295,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="25" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="34" x2="18" y2="82"/>
+                  <line x1="18" y1="82" x2="0" y2="135"/>
+                  <line x1="18" y1="82" x2="40" y2="108"/>
+                  <line x1="40" y1="108" x2="60" y2="90"/>
+                  <line x1="20" y1="50" x2="40" y2="70"/>
+                  <line x1="20" y1="50" x2="6" y2="70"/>
+                  <circle cx="0" cy="135" r="5" fill="#3B82F6" stroke="none"/>
+                </g>
+                <text x="325" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Toe-off</text>
+                <!-- 4. Float (flight) -->
+                <g transform="translate(415,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="30" cy="18" r="9" fill="#94A3B8"/>
+                  <line x1="30" y1="27" x2="30" y2="78"/>
+                  <line x1="30" y1="78" x2="48" y2="108"/>
+                  <line x1="48" y1="108" x2="60" y2="92"/>
+                  <line x1="30" y1="78" x2="15" y2="100"/>
+                  <line x1="15" y1="100" x2="2" y2="85"/>
+                  <line x1="30" y1="45" x2="50" y2="62"/>
+                  <line x1="30" y1="45" x2="12" y2="60"/>
+                </g>
+                <text x="455" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Float (airborne)</text>
+
+                <rect x="14" y="8" width="270" height="14" fill="#10B981" opacity="0.2" rx="2"/>
+                <text x="149" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#10B981">STANCE (~35% of cycle)</text>
+                <rect x="286" y="8" width="226" height="14" fill="#EF4444" opacity="0.2" rx="2"/>
+                <text x="399" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#EF4444">SWING + FLIGHT (~65%)</text>
+              </svg>
+            </div>
+            <div style="font-size:12.5px;line-height:1.55;color:var(--text-2)">
+              <p style="margin:0 0 8px"><strong style="color:var(--text)">What good running looks like:</strong> foot lands roughly under the center of mass — usually midfoot, sometimes light forefoot — not out in front of you. Quick, springy contact (200–240 ms). Both feet leave the ground between steps — that's the flight phase that distinguishes running from walking.</p>
+              <p style="margin:0 0 8px"><strong style="color:var(--text)">Signals on this app:</strong> S2 and S3 peak together (or S3 slightly later). Cadence 170–185 spm. Vertical oscillation &lt; 10 cm; vertical ratio &lt; 7%.</p>
+              <p style="margin:0"><strong style="color:var(--text)">Efficient cue:</strong> "run tall, run quiet." Tall posture, short ground contact, minimal bounce. Forward drive from hip extension, not from pushing the knee forward.</p>
+            </div>
+          </div>
+
+          <!-- Common issues -->
+          <div class="learn-pane" id="learn-issues">
+            <div id="issueList">
+              <div class="issue-row">
+                <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                  <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                    <circle cx="100" cy="24" r="7" fill="#94A3B8"/>
+                    <line x1="100" y1="31" x2="100" y2="58"/>
+                    <line x1="100" y1="58" x2="80" y2="80"/>
+                    <line x1="100" y1="58" x2="160" y2="72"/>
+                    <line x1="160" y1="72" x2="180" y2="82"/>
+                    <circle cx="180" cy="82" r="4" fill="#EF4444" stroke="none"/>
+                    <!-- center-of-mass marker -->
+                    <circle cx="100" cy="58" r="3" fill="#06B6D4"/>
+                    <line x1="100" y1="58" x2="180" y2="82" stroke="#EF4444" stroke-dasharray="3 3" stroke-width="1"/>
+                  </g>
+                  <text x="110" y="96" font-size="9" fill="#9aa0a6" font-family="Calibri">foot lands far ahead of CoM</text>
+                </svg>
+                <div>
+                  <div class="issue-title">Over-striding</div>
+                  <div class="issue-body">
+                    Foot lands well ahead of your center of mass — common with heel striking at speed.
+                    Acts as a braking force every step; elevates knee and tibial stress.
+                    <strong class="fix">Fix:</strong> Increase cadence 5–10%; aim to land under your hip.
+                  </div>
+                </div>
+              </div>
+
+              <div class="issue-row">
+                <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                  <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                    <circle cx="110" cy="20" r="7" fill="#94A3B8"/>
+                    <line x1="110" y1="27" x2="110" y2="55"/>
+                    <line x1="110" y1="55" x2="95" y2="82"/>
+                    <!-- dropped hip on the other side -->
+                    <line x1="110" y1="55" x2="135" y2="66"/>
+                    <circle cx="135" cy="66" r="3" fill="#F59E0B"/>
+                    <line x1="135" y1="66" x2="155" y2="82"/>
+                  </g>
+                  <text x="110" y="96" font-size="9" fill="#9aa0a6" font-family="Calibri">dropped contralateral hip (Trendelenburg)</text>
+                </svg>
+                <div>
+                  <div class="issue-title">Hip drop (Trendelenburg)</div>
+                  <div class="issue-body">
+                    When one leg is in stance, the opposite hip drops instead of staying level.
+                    Signals weak hip abductors on the stance side. Common cause of ITB syndrome and knee pain.
+                    <strong class="fix">Fix:</strong> Side-planks, single-leg squats, banded clamshells.
+                  </div>
+                </div>
+              </div>
+
+              <div class="issue-row">
+                <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                  <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                    <circle cx="110" cy="12" r="7" fill="#94A3B8"/>
+                    <line x1="110" y1="19" x2="110" y2="50"/>
+                    <line x1="110" y1="50" x2="90" y2="82"/>
+                    <line x1="110" y1="50" x2="130" y2="72"/>
+                    <line x1="130" y1="72" x2="145" y2="82"/>
+                    <!-- high vertical marker -->
+                    <path d="M60,12 L60,50" stroke="#EF4444" stroke-width="2" marker-end="url(#ah)"/>
+                    <path d="M60,50 L60,12" stroke="#EF4444" stroke-width="2"/>
+                  </g>
+                  <text x="110" y="96" font-size="9" fill="#9aa0a6" font-family="Calibri">excessive vertical bounce</text>
+                </svg>
+                <div>
+                  <div class="issue-title">Excessive vertical oscillation</div>
+                  <div class="issue-body">
+                    Bounce &gt; 10 cm wastes energy going up instead of forward.
+                    Usually pairs with low cadence and long ground contact.
+                    <strong class="fix">Fix:</strong> Increase cadence toward 175–180 spm; cue "run quiet, land light."
+                  </div>
+                </div>
+              </div>
+
+              <div class="issue-row">
+                <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                  <!-- arches -->
+                  <path d="M60,82 Q75,78 90,82" stroke="#EF4444" stroke-width="2" fill="none"/>
+                  <text x="75" y="72" font-size="9" fill="#EF4444" font-family="Calibri" text-anchor="middle">flat</text>
+                  <path d="M130,82 Q145,70 160,82" stroke="#10B981" stroke-width="2" fill="none"/>
+                  <text x="145" y="64" font-size="9" fill="#10B981" font-family="Calibri" text-anchor="middle">neutral</text>
+                </svg>
+                <div>
+                  <div class="issue-title">Over-pronation</div>
+                  <div class="issue-body">
+                    Arch collapses inward on landing. S2 (midfoot) sensor sees disproportionate load relative to S1/S3.
+                    Can contribute to plantar fasciitis, shin splints, bunions.
+                    <strong class="fix">Fix:</strong> Single-leg balance on a cushion, toe-yoga, stability shoes or orthotics if symptomatic.
+                  </div>
+                </div>
+              </div>
+
+              <div class="issue-row">
+                <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                  <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                    <circle cx="80" cy="22" r="7" fill="#94A3B8"/>
+                    <line x1="80" y1="29" x2="80" y2="60"/>
+                    <line x1="80" y1="60" x2="72" y2="82"/>
+                    <line x1="80" y1="60" x2="94" y2="82"/>
+                    <circle cx="72" cy="82" r="4" fill="#3B82F6"/>
+                    <text x="40" y="78" font-size="9" fill="#3B82F6" font-family="Calibri">L</text>
+
+                    <circle cx="160" cy="22" r="7" fill="#94A3B8"/>
+                    <line x1="160" y1="29" x2="160" y2="60"/>
+                    <line x1="160" y1="60" x2="150" y2="82"/>
+                    <line x1="160" y1="60" x2="175" y2="82"/>
+                    <circle cx="175" cy="82" r="4" fill="#EF4444"/>
+                    <text x="200" y="78" font-size="9" fill="#EF4444" font-family="Calibri">R</text>
+                  </g>
+                </svg>
+                <div>
+                  <div class="issue-title">Asymmetric strike / stance time</div>
+                  <div class="issue-body">
+                    One foot lands differently — or stays on the ground noticeably longer — than the other.
+                    Usually a compensation from a past injury or leg-length difference.
+                    <strong class="fix">Fix:</strong> Unilateral strength work on the weaker side; if persistent for weeks, a physio check and possibly a video gait analysis.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="muted" style="font-size:11px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+              Note: these are pattern descriptions, not medical diagnoses. If you have pain that persists, consult a sports physiotherapist or podiatrist.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR -->
+      <div class="subpane" id="sub-hr">
+        <div class="metrics-row">
+          <div class="metric"><div class="label">Avg HR</div><div class="value"><span id="hrAvgMetric">0</span><small>bpm</small></div></div>
+          <div class="metric"><div class="label">Max HR</div><div class="value"><span id="hrMaxMetric">0</span><small>bpm</small></div></div>
+          <div class="metric"><div class="label">HR drift</div><div class="value"><span id="hrDriftMetric">0.0</span><small>bpm/min</small></div></div>
+          <div class="metric"><div class="label">Current zone</div><div class="value" id="hrZoneMetric" style="font-size:16px">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>HR vs time (session)</h3><span class="tag">bpm · rolling</span></div>
+          <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartHRanalyze" preserveAspectRatio="none"></svg></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>Coaching insights</h3><span class="tag">HR signals</span></div>
+          <div id="adviceHR"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><h3>HR trend</h3><span class="tag" id="hrTrendTag">—</span></div>
+          <div id="trendHR"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== PROFILE ================== -->
+    <section class="screen" id="scr-profile">
+      <div class="card">
+        <div class="card-title"><h3>Your profile</h3><span class="saved-chip" id="profileSaved">Saved</span></div>
+
+        <div class="avatar-upload">
+          <div class="ring" id="profileAvatar">
+            <span id="profileInitials">DB</span>
+          </div>
+          <div>
+            <label for="profilePhoto" class="btn-file">Change photo</label>
+            <input type="file" id="profilePhoto" accept="image/*"/>
+            <div class="muted" style="font-size:10px;margin-top:6px">Stored locally on your device only.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="profileName">Full name</label>
+          <input type="text" id="profileName" placeholder="e.g. Dhananjay Bodas" autocomplete="name"/>
+        </div>
+
+        <div class="form-row">
+          <label>Sex</label>
+          <div class="segmented" id="profileSex">
+            <button data-sex="male">Male</button>
+            <button data-sex="female">Female</button>
+            <button data-sex="other">Other</button>
+          </div>
+        </div>
+
+        <div class="form-row dual">
+          <div>
+            <label for="profileAge">Age (years)</label>
+            <input type="number" id="profileAge" min="10" max="100" placeholder="e.g. 42" inputmode="numeric"/>
+          </div>
+          <div>
+            <label for="profileHeight">Height (cm)</label>
+            <input type="number" id="profileHeight" min="90" max="230" placeholder="e.g. 175" inputmode="numeric"/>
+          </div>
+        </div>
+
+        <div class="form-row dual">
+          <div>
+            <label for="profileWeight">Weight (kg)</label>
+            <input type="number" id="profileWeight" min="25" max="250" step="0.1" placeholder="e.g. 72.0" inputmode="decimal"/>
+          </div>
+          <div>
+            <label for="profileHRmax">Max HR (bpm)</label>
+            <input type="number" id="profileHRmax" min="120" max="230" placeholder="auto from age" inputmode="numeric"/>
+          </div>
+        </div>
+
+        <div class="form-row dual">
+          <div>
+            <label for="profileHRrest">Resting HR (bpm)</label>
+            <input type="number" id="profileHRrest" min="30" max="120" placeholder="e.g. 58" inputmode="numeric"/>
+          </div>
+          <div>
+            <label>HR reserve</label>
+            <input type="text" id="profileHRR" readonly placeholder="—"/>
+          </div>
+        </div>
+
+        <div class="muted" style="font-size:11px;margin-top:4px">
+          Max HR auto-fills from <strong style="color:var(--text)">220 − age</strong>; edit if you have a measured value. When <strong style="color:var(--text)">Resting HR</strong> is set, zones use the <strong style="color:var(--text)">Karvonen</strong> method (%HR-reserve) — significantly more accurate than %HRmax, especially if your resting HR is low.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h3>Heart-rate zones</h3>
+          <span class="tag" id="zonesMethod">%HRmax</span>
+        </div>
+        <div class="form-row dual">
+          <div>
+            <label>Scheme</label>
+            <div class="segmented" id="zoneScheme">
+              <button class="active" data-scheme="5">5 zones</button>
+              <button data-scheme="7">7 zones</button>
+            </div>
+          </div>
+          <div>
+            <label>Boundaries</label>
+            <div class="segmented" id="zoneMode">
+              <button class="active" data-zmode="auto">Auto</button>
+              <button data-zmode="manual">Manual</button>
+            </div>
+          </div>
+        </div>
+        <div id="zonesDisplay" style="font-size:13px"></div>
+        <div class="muted" style="font-size:11px;margin-top:8px" id="zonesFootnote">
+          Session time-in-zone accumulates on the Biomech screen and uses these boundaries.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h3>Gear · Shoes</h3>
+          <span class="tag" id="shoesCount">none yet</span>
+        </div>
+        <div id="shoesList"></div>
+
+        <button class="btn secondary" id="shoesAddBtn" style="margin-top:4px">+ Add shoes</button>
+
+        <div id="shoesAddForm" style="display:none;margin-top:12px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px">
+          <div class="form-row">
+            <label for="shoeNickname">Nickname</label>
+            <input type="text" id="shoeNickname" placeholder="e.g. Daily trainers"/>
+          </div>
+          <div class="form-row dual">
+            <div>
+              <label for="shoeBrand">Brand</label>
+              <input type="text" id="shoeBrand" placeholder="e.g. Asics"/>
+            </div>
+            <div>
+              <label for="shoeModel">Model</label>
+              <input type="text" id="shoeModel" placeholder="e.g. Gel-Kayano 30"/>
+            </div>
+          </div>
+          <div class="form-row dual">
+            <div>
+              <label for="shoePurchase">Purchase date</label>
+              <input type="date" id="shoePurchase"/>
+            </div>
+            <div>
+              <label for="shoeRetireKm">Retire at (km)</label>
+              <input type="number" id="shoeRetireKm" min="100" max="2000" step="50" value="800" inputmode="numeric"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Color</label>
+            <div class="color-picker" id="shoeColor">
+              <button type="button" data-color="#3B82F6" style="background:#3B82F6" aria-label="blue"></button>
+              <button type="button" data-color="#F59E0B" style="background:#F59E0B" aria-label="amber"></button>
+              <button type="button" data-color="#EF4444" style="background:#EF4444" aria-label="red"></button>
+              <button type="button" data-color="#10B981" style="background:#10B981" aria-label="green"></button>
+              <button type="button" data-color="#8B5CF6" style="background:#8B5CF6" aria-label="purple"></button>
+              <button type="button" data-color="#EC4899" style="background:#EC4899" aria-label="pink"></button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <button class="btn secondary" id="shoesCancelBtn" style="flex:1">Cancel</button>
+            <button class="btn" id="shoesSaveBtn" style="flex:1">Add shoes</button>
+          </div>
+        </div>
+
+        <div class="muted" style="font-size:11px;margin-top:10px">
+          Distance accrues to the <strong style="color:var(--text)">active</strong> pair while a session runs. Typical retirement thresholds: running 500–800 km, walking 800–1000 km. You'll see a warning badge at 70% and an alert at 100%.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Preferences</h3></div>
+        <div class="form-row">
+          <label>Activity mode</label>
+          <div class="segmented" id="profileMode">
+            <button data-mode="walk">Walk</button>
+            <button data-mode="run">Run</button>
+          </div>
+          <div class="muted" style="font-size:11px;margin-top:4px">Also togglable from the Home screen. Changes the expected gait cycle period and baseline speed.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Data</h3></div>
+        <button class="btn secondary" id="profileReset">Reset profile & clear local data</button>
       </div>
     </section>
   </main>
@@ -697,6 +1300,10 @@
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 9 9h-9V3z"/></svg>
       <span>Analyze</span>
     </button>
+    <button class="tab" data-screen="profile">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+      <span>Profile</span>
+    </button>
   </nav>
 </div>
 
@@ -721,7 +1328,14 @@
     pressure: {t:'Pressure', s:'3 sensors · Live'},
     activity: {t:'Activity', s:'GPS · Distance · Altitude'},
     biomech:  {t:'Biomech',  s:'Accel · HR · Correlations'},
-    analyze:  {t:'Analyze',  s:'Gait · Balance'}
+    analyze:  {t:'Analyze',  s:'Gait · Balance'},
+    profile:  {t:'Profile',  s:'Your details & preferences'}
+  };
+
+  // Activity mode parameters
+  const MODE = {
+    walk: {gaitMs: 1100, baseSpeed: 1.45, speedJitter: 0.15},
+    run:  {gaitMs: 680,  baseSpeed: 3.20, speedJitter: 0.30}
   };
 
   // ---------- STATE ----------
@@ -772,21 +1386,52 @@
     lapAgg: {startT:0, distStart:0, hrSum:0, hrN:0, peakLoad:0, elevStart:0, elevLast:0, elevGain:0, timeAtGrade:[]},
     // --- HR zones ---
     hrMaxAssumed: 190,                                   // user HR max (assumed for zones)
-    timeInZone: {Z1:0, Z2:0, Z3:0, Z4:0, Z5:0},          // seconds
+    timeInZone: {Z1:0, Z2:0, Z3:0, Z4:0, Z5:0, Z6:0, Z7:0},   // seconds (Z6/Z7 only used in 7-zone)
     lastZoneT: 0,                                        // last tick time for TIZ accumulation
     // --- Derived biomech (combined L+R) ---
     cadence: 0,                        // spm
     cadenceHistory: [],                // per-step running
     strideLen: 0,                      // meters (one stride = 2 steps)
     strideLenHistory: [],
-    verticalRatio: 0                   // % (VO_cm / stride_cm * 100)
+    verticalRatio: 0,                  // % (VO_cm / stride_cm * 100)
+    // --- Mode + profile ---
+    mode: 'walk',                      // 'walk' | 'run'
+    profile: {
+      name: '',
+      photo: '',                       // data URL or ''
+      sex:  '',                        // 'male' | 'female' | 'other' | ''
+      age:  null,
+      height: null,                    // cm
+      weight: null,                    // kg
+      hrMax:  null,                    // user-measured max HR (bpm); overrides 220-age
+      hrRest: null,                    // resting HR (bpm); unlocks Karvonen zones
+      zoneScheme: '5',                 // '5' | '7'
+      zonesManual: false,              // if true, zoneOverrides are used
+      zoneOverrides5: null,            // [z1min, z2min, z3min, z4min, z5min]
+      zoneOverrides7: null,            // [z1min..z7min]
+      shoes: [],                       // [{id,nickname,brand,model,color,purchaseDate,retirementKm,distanceM,retired,retiredDate}]
+      activeShoeId: null
+    }
   };
 
   // ---------- SIMULATOR ----------
-  // Walking pace = one step per ~0.9s. Stance ~60% (540ms), swing 40% (360ms).
-  // Within stance: 0-25% heel dominates, 25-60% midfoot, 50-100% forefoot pushes off.
-  const GAIT_PERIOD_MS = 900;  // one full step (stance+swing)
-  const STANCE_FRAC    = 0.6;
+  // Walking: ~1.1s per step cycle (stance+swing). Running: ~0.68s per step cycle.
+  // Stance phase is ~60% of cycle in walking, ~35% in running.
+  // Within stance: 0-25% heel dominates, 25-60% midfoot, 50-100% forefoot push-off.
+  let GAIT_PERIOD_MS = MODE.walk.gaitMs;  // mutable; updated by setMode()
+  let STANCE_FRAC    = 0.6;
+
+  function setMode(mode){
+    if (mode !== 'walk' && mode !== 'run') return;
+    state.mode = mode;
+    GAIT_PERIOD_MS = MODE[mode].gaitMs;
+    STANCE_FRAC    = mode === 'run' ? 0.35 : 0.6;
+    // Reflect in all toggles
+    document.querySelectorAll('#modeToggle button, #profileMode button').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+    saveProfile();
+  }
 
   function gaussian(x, mu, sigma){
     const a = (x - mu) / sigma;
@@ -822,9 +1467,11 @@
     return {l1,l2,l3,r1,r2,r3};
   }
 
-  // GPS simulator: figure-8 loop, ~1.6 m/s avg, with altitude profile (gentle hill)
+  // GPS simulator: figure-8 loop with altitude profile (gentle hill).
+  // Base speed depends on mode (walk ~1.45 m/s, run ~3.2 m/s).
   function simulateGPS(t_ms){
-    const spd = 1.6 + 0.15*Math.sin(t_ms/12000);   // m/s
+    const m = MODE[state.mode] || MODE.walk;
+    const spd = m.baseSpeed + m.speedJitter*Math.sin(t_ms/12000);   // m/s
     const d   = (state.gBuf.length ? state.gBuf[state.gBuf.length-1].dist : 0) + spd*(GPS_MS/1000);
     // figure-8 projected onto local x/y plane (meters), then fake lat/lng
     const s = d / 80;                               // param
@@ -860,21 +1507,93 @@
   function simulateHR(t_ms){
     const spd = state.gBuf.length ? state.gBuf[state.gBuf.length-1].speed : 0;
     const alt = state.gBuf.length ? state.gBuf[state.gBuf.length-1].alt : 560;
-    const effort = Math.pow(Math.max(0,spd),1.3)*18 + Math.max(0,(alt-560))*0.8;
-    const target = 68 + effort;                  // target bpm
-    // smooth toward target with small noise + breathing modulation
+    // Running = more cardiovascular effort per m/s than walking; scale accordingly
+    const modeK = state.mode === 'run' ? 24 : 14;
+    const effort = Math.pow(Math.max(0,spd),1.3) * modeK + Math.max(0,(alt-560))*0.8;
+    // Baseline HR — user's resting HR if set, else 68
+    const base = Number(state.profile.hrRest) || 68;
+    const hMax = effectiveMaxHR();
+    const target = base + effort;
     const breath = 2.5*Math.sin(t_ms/3200);
     const next = state.hrCur + (target - state.hrCur)*0.03 + breath*0.15 + (Math.random()-.5)*0.6;
-    return Math.max(45, Math.min(205, next));
+    return Math.max(Math.max(40, base - 5), Math.min(hMax + 5, next));
   }
+  // Effective Max HR — user override > 220-age > default 190
+  function effectiveMaxHR(){
+    if (state.profile.hrMax)       return Number(state.profile.hrMax);
+    if (state.profile.age)         return Math.max(100, 220 - Number(state.profile.age));
+    return state.hrMaxAssumed || 190;
+  }
+  function effectiveRestHR(){
+    return state.profile.hrRest ? Number(state.profile.hrRest) : null;
+  }
+  // Zone metadata (labels, colors) for both 5- and 7-zone schemes
+  const ZONE_META_5 = [
+    {key:'Z1', label:'Z1 · Warm-up',   color:'#9CA3AF'},
+    {key:'Z2', label:'Z2 · Easy',      color:'#3B82F6'},
+    {key:'Z3', label:'Z3 · Aerobic',   color:'#10B981'},
+    {key:'Z4', label:'Z4 · Threshold', color:'#F59E0B'},
+    {key:'Z5', label:'Z5 · Max',       color:'#EF4444'}
+  ];
+  const ZONE_META_7 = [
+    {key:'Z1', label:'Z1 · Recovery',      color:'#9CA3AF'},
+    {key:'Z2', label:'Z2 · Endurance',     color:'#3B82F6'},
+    {key:'Z3', label:'Z3 · Tempo',         color:'#10B981'},
+    {key:'Z4', label:'Z4 · Sub-threshold', color:'#F59E0B'},
+    {key:'Z5', label:'Z5 · VO₂max',        color:'#EF4444'},
+    {key:'Z6', label:'Z6 · Anaerobic',     color:'#B91C1C'},
+    {key:'Z7', label:'Z7 · Neuromuscular', color:'#7F1D1D'}
+  ];
+  const ZONE_FRACTIONS_5 = [0.50, 0.60, 0.70, 0.80, 0.90, 1.00];
+  const ZONE_FRACTIONS_7 = [0.50, 0.60, 0.70, 0.80, 0.87, 0.93, 0.97, 1.00];
+
+  function zoneMeta(){  return state.profile.zoneScheme === '7' ? ZONE_META_7  : ZONE_META_5; }
+  function zoneFractions(){ return state.profile.zoneScheme === '7' ? ZONE_FRACTIONS_7 : ZONE_FRACTIONS_5; }
+
+  // Returns {Z1..Zn: [minBpm, maxBpm], method, max, rest, keys, min}.
+  // Auto mode uses Karvonen when rest is set, else %HRmax.
+  // Manual mode uses profile.zoneOverrides for the active scheme.
+  function zoneBounds(){
+    const max  = effectiveMaxHR();
+    const rest = effectiveRestHR();
+    const meta = zoneMeta();
+    const fractions = zoneFractions();
+    const toBpm = (f) => rest ? Math.round(rest + f * (max - rest)) : Math.round(f * max);
+
+    // Lower bounds per zone (plus one trailing = max)
+    let lower;
+    const overridesKey = state.profile.zoneScheme === '7' ? 'zoneOverrides7' : 'zoneOverrides5';
+    const overrides = state.profile[overridesKey];
+    if (state.profile.zonesManual && Array.isArray(overrides) && overrides.length === meta.length){
+      lower = overrides.map(Number);
+    } else {
+      lower = fractions.slice(0, meta.length).map(toBpm);
+    }
+    // Build ranges
+    const result = {
+      method: state.profile.zonesManual ? 'Manual'
+            : (rest ? 'Karvonen (%HRR)' : '%HRmax'),
+      max, rest,
+      keys: meta.map(m => m.key),
+      min:  lower[0]
+    };
+    for (let i = 0; i < meta.length; i++){
+      const lo = lower[i];
+      const hi = i < meta.length - 1 ? (lower[i+1] - 1) : max;
+      result[meta[i].key] = [lo, hi];
+    }
+    return result;
+  }
+
   function hrZone(bpm){
-    // zones as % of HRmax (user-assumed)
-    const p = bpm/state.hrMaxAssumed;
-    if (p < 0.6) return {z:'Z1 · warm',      key:'Z1', color:'#9CA3AF'};
-    if (p < 0.7) return {z:'Z2 · easy',      key:'Z2', color:'#3B82F6'};
-    if (p < 0.8) return {z:'Z3 · aerobic',   key:'Z3', color:'#10B981'};
-    if (p < 0.9) return {z:'Z4 · threshold', key:'Z4', color:'#F59E0B'};
-    return                 {z:'Z5 · max',    key:'Z5', color:'#EF4444'};
+    const zb = zoneBounds();
+    const meta = zoneMeta();
+    // Find highest zone whose lower bound is <= bpm. Default to Z1.
+    let found = meta[0];
+    for (const m of meta){
+      if (bpm >= zb[m.key][0]) found = m;
+    }
+    return { z: found.label, key: found.key, color: found.color };
   }
 
   // Grade-adjusted pace (Minetti-style approximation).
@@ -1056,6 +1775,19 @@
       else       state.altLoss += -d;
       if (d > 0) state.lapAgg.elevGain += d;
     }
+
+    // Accrue distance to active shoe (only when GPS distance advanced)
+    if (prev && state.profile.activeShoeId){
+      const shoe = (state.profile.shoes || []).find(s => s.id === state.profile.activeShoeId);
+      if (shoe && !shoe.retired){
+        shoe.distanceM = (shoe.distanceM || 0) + Math.max(0, g.dist - prev.dist);
+        // Throttled save: only write once per ~5 seconds to avoid thrashing localStorage
+        if (now - (state.lastShoeSave || 0) > 5000){
+          state.lastShoeSave = now;
+          saveProfile();
+        }
+      }
+    }
     state.altMax = Math.max(state.altMax, g.alt);
     state.lapAgg.elevLast = g.alt;
 
@@ -1122,6 +1854,7 @@
     if (currentScreen === 'activity') renderActivity();
     if (currentScreen === 'biomech')  renderBiomech();
     if (currentScreen === 'analyze')  renderAnalyze();
+    if (currentScreen === 'profile')  renderProfileLive();
     requestAnimationFrame(renderLoop);
   }
 
@@ -1256,6 +1989,7 @@
 
   // ---------- HOME ----------
   function renderHome(){
+    updateHomeShoeChip();
     // Chips show combined (L+R) per position
     $('chipS1').textContent = Math.round(state.cur.l1 + state.cur.r1);
     $('chipS2').textContent = Math.round(state.cur.l2 + state.cur.r2);
@@ -1582,29 +2316,29 @@
 
   function renderTIZ(){
     const tiz = state.timeInZone;
-    const keys = ['Z1','Z2','Z3','Z4','Z5'];
-    const labels = {Z1:'Z1 · warm', Z2:'Z2 · easy', Z3:'Z3 · aerobic', Z4:'Z4 · threshold', Z5:'Z5 · max'};
-    const colors = {Z1:'#9CA3AF', Z2:'#3B82F6', Z3:'#10B981', Z4:'#F59E0B', Z5:'#EF4444'};
-    const total = keys.reduce((a,k) => a + (tiz[k]||0), 0);
+    const meta = zoneMeta();
+    const activeKeys = meta.map(m => m.key);
+    const allKeys = ['Z1','Z2','Z3','Z4','Z5','Z6','Z7'];
+    const total = activeKeys.reduce((a,k) => a + (tiz[k]||0), 0);
     $('tizTotal').textContent = fmtMMSS(Math.round(total));
-    // widths on stacked bar
-    for (const k of keys){
+    // Segments: active zones get their % width; inactive hide (width 0)
+    for (const k of allKeys){
       const el = $('tiz'+k);
       if (!el) continue;
-      const pct = total > 0 ? ((tiz[k]||0)/total)*100 : 0;
+      const isActive = activeKeys.includes(k);
+      const pct = (isActive && total > 0) ? ((tiz[k]||0)/total)*100 : 0;
       el.style.width = pct + '%';
       el.style.transition = 'width 0.4s ease';
     }
-    // rows
     let html = '';
-    for (const k of keys){
-      const t = tiz[k] || 0;
+    for (const m of meta){
+      const t = tiz[m.key] || 0;
       const pct = total > 0 ? Math.round(t/total*100) : 0;
       html += `
         <div class="row-between" style="padding:5px 0;border-bottom:1px solid var(--border)">
           <span style="display:flex;align-items:center;gap:8px">
-            <span style="width:10px;height:10px;border-radius:2px;background:${colors[k]};display:inline-block"></span>
-            <span style="color:var(--text-2)">${labels[k]}</span>
+            <span style="width:10px;height:10px;border-radius:2px;background:${m.color};display:inline-block"></span>
+            <span style="color:var(--text-2)">${m.label}</span>
           </span>
           <span><strong>${fmtMMSS(Math.round(t))}</strong> <span style="color:var(--text-2)">· ${pct}%</span></span>
         </div>`;
@@ -1905,11 +2639,371 @@
     svg.innerHTML = html;
   }
 
-  // ---------- ANALYZE ----------
+  // ---------- ANALYZE (live + coaching + trends) ----------
+  // Trend filter state
+  state.trendWindowDays = 30;
+  state.trendMode = 'all';
+
   function renderAnalyze(){
     renderHeatmap();
     renderBalance();
     renderGait();
+    renderHRTab();
+    renderAdviceHeatmap();
+    renderAdviceBalance();
+    renderAdviceGait();
+    renderAdviceHR();
+    renderTrends();
+  }
+
+  // ---------------- Coaching / advice engine ----------------
+  // Returns an array of {level, title, body} where level ∈ 'ok'|'watch'|'alert'.
+  function advisoryHeatmap(){
+    const out = [];
+    const ps = state.sessionSamples;
+    if (ps.length < 30){
+      out.push({level:'ok', title:'Gathering data', body:'Walk or run for ~30 seconds to get coaching signal.'}); return out;
+    }
+    // Per-zone averages
+    let h=0,m=0,f=0;
+    for (const s of ps){ h += (s.l1+s.r1); m += (s.l2+s.r2); f += (s.l3+s.r3); }
+    const t = h+m+f || 1;
+    const pH=h/t, pM=m/t, pF=f/t;
+    if (pH > 0.5){
+      out.push({level:'watch', title:'Heel-dominant loading',
+        body:'Heel zone is >50% of total load. Common in walking — but during running it raises impact stress on knees and hips. Try: increase cadence by 5–10% and aim for midfoot landing beneath the body.'});
+    }
+    if (pF > 0.55){
+      out.push({level:'watch', title:'Forefoot-heavy loading',
+        body:'Forefoot carries >55% of load. This can overload calves and Achilles. Try: calf/soleus stretching and eccentric heel-drops; occasional drills with a conscious midfoot landing.'});
+    }
+    if (pM < 0.18){
+      out.push({level:'watch', title:'Low midfoot engagement',
+        body:'Midfoot < 18% suggests a "heel-to-toe skipping" pattern. A stronger midfoot roll distributes load more evenly — try barefoot walks on soft ground and toe-spread drills.'});
+    }
+    if (pH >= 0.25 && pH <= 0.45 && pM >= 0.20 && pF >= 0.25 && pF <= 0.55){
+      out.push({level:'ok', title:'Well-distributed loading',
+        body:'Heel / midfoot / forefoot are within healthy ranges for most people. Keep this pattern as intensity ramps up.'});
+    }
+    return out;
+  }
+
+  function advisoryBalance(){
+    const out = [];
+    const asym = Math.abs(state.lrL - 50) * 2;
+    const ps = state.sessionSamples;
+    if (ps.length < 30){ out.push({level:'ok', title:'Gathering data', body:'Continue for ~30s to evaluate L/R balance.'}); return out; }
+    if (asym < 6){
+      out.push({level:'ok', title:'Balanced L/R loading',
+        body:`L/R share ${state.lrL}/${state.lrR}%. Good symmetry.`});
+    } else if (asym < 15){
+      out.push({level:'watch', title:'Mild L/R asymmetry',
+        body:`Load leans ${state.lrL>50?'left':'right'} by ${asym}%. Some variation is normal. If persistent, single-leg squats, step-ups and hip-abductor work on the weaker side usually close the gap in 4–6 weeks.`});
+    } else {
+      out.push({level:'alert', title:'Significant L/R asymmetry',
+        body:`Loading is ${asym}% skewed toward ${state.lrL>50?'left':'right'}. This elevates injury risk (ITB syndrome, shin splints, hip pain). Worth a physio check; in the interim, targeted unilateral strength work is the first-line correction.`});
+    }
+    // GCT difference
+    const gdiff = Math.abs((state.gctAvg.L||0) - (state.gctAvg.R||0));
+    if (gdiff > 35){
+      out.push({level:'alert', title:'Contact-time asymmetry',
+        body:`Ground-contact time differs by ${gdiff} ms between feet. Suggests the weaker side "stamps" briefly — commonly from a past injury or strength imbalance. Single-leg balance drills + plyometric hops correct this over weeks.`});
+    }
+    return out;
+  }
+
+  function advisoryGait(){
+    const out = [];
+    const cad = state.cadence;
+    const gctAvg = Math.round(((state.gctAvg.L||0)+(state.gctAvg.R||0))/2);
+    const vo = state.voAvg;
+    const vr = state.verticalRatio;
+    if (state.stepCount < 5){ out.push({level:'ok', title:'Not enough steps yet', body:'Take a few more steps to evaluate gait.'}); return out; }
+
+    if (state.mode === 'run'){
+      if (cad > 0 && cad < 165){
+        out.push({level:'watch', title:'Low cadence',
+          body:`Cadence at ${cad} spm. Running economy typically improves at 170–180 spm. Try: count steps for 15s, target ~44. Metronome apps help — set to 175 and sync with footstrikes.`});
+      } else if (cad >= 170 && cad <= 185){
+        out.push({level:'ok', title:'Cadence in sweet spot',
+          body:`${cad} spm — matches the 170–180 range that correlates with lower impact and better economy.`});
+      }
+      if (gctAvg > 280){
+        out.push({level:'watch', title:'Long ground-contact time',
+          body:`GCT ${gctAvg} ms. Elite runners sit around 200–230 ms. Shorter contacts = springier stride. Plyometric drills (pogos, double-leg hops) and cadence work will bring this down.`});
+      }
+      if (vo > 10){
+        out.push({level:'watch', title:'High vertical oscillation',
+          body:`Bounce ≈ ${vo.toFixed(1)} cm. Above ~10 cm wastes energy going up rather than forward. Cue: "run tall, run quiet." Quicker cadence usually reduces this automatically.`});
+      }
+      if (vr > 0 && vr > 8){
+        out.push({level:'watch', title:'Vertical ratio elevated',
+          body:`VR ${vr.toFixed(1)}%. Good runners sit <7%. Work on cadence first; VO follows.`});
+      }
+    } else {
+      // Walk mode
+      if (cad > 0 && cad < 95){
+        out.push({level:'watch', title:'Slow walking cadence',
+          body:`${cad} spm is a casual stroll. Brisk walking (115–125 spm) gets significant cardiovascular benefit with little joint stress. Try a 10-minute brisk block.`});
+      }
+      if (gctAvg > 500){
+        out.push({level:'watch', title:'Long ground contact',
+          body:`GCT ${gctAvg} ms is high even for walking. Focus on shorter, quicker steps rather than long strides.`});
+      }
+    }
+
+    // Strike-pattern sanity
+    const strikeL = maxKeyOf(state.strikes.L);
+    const strikeR = maxKeyOf(state.strikes.R);
+    if (strikeL && strikeR && strikeL !== strikeR){
+      out.push({level:'watch', title:'Asymmetric strike pattern',
+        body:`Left lands ${strikeL}-first; right lands ${strikeR}-first. Often a compensation from an old injury or leg-length difference. A video gait analysis at your clinic can confirm.`});
+    }
+
+    if (out.length === 0){
+      out.push({level:'ok', title:'Gait looks clean',
+        body:'No flags on cadence, contact time, bounce, or strike pattern. Keep the form as you add intensity.'});
+    }
+    return out;
+  }
+
+  function advisoryHR(){
+    const out = [];
+    if (state.hrN < 60){ out.push({level:'ok', title:'Gathering HR data', body:'Wait for ~1 minute of steady effort to evaluate HR.'}); return out; }
+    const avg = state.hrSum / state.hrN;
+    const max = state.hrMax;
+    const hMax = effectiveMaxHR();
+    const pctAvg = (avg/hMax)*100;
+
+    if (pctAvg > 85){
+      out.push({level:'alert', title:'High average intensity',
+        body:`Session average ≈ ${Math.round(pctAvg)}% of HRmax. Sustained above 85% is threshold+ territory. For most easy-day training, target 65–75% to build aerobic base with less recovery cost.`});
+    } else if (pctAvg < 55 && state.mode === 'run'){
+      out.push({level:'watch', title:'Very low HR for a run',
+        body:`Average ≈ ${Math.round(pctAvg)}% HRmax. If this is intentional (recovery run), great. If you expected a workout effect, you may be under-challenged.`});
+    } else {
+      out.push({level:'ok', title:'HR in appropriate range',
+        body:`Avg ${Math.round(avg)} bpm (${Math.round(pctAvg)}% HRmax). Matches a ${state.mode === 'run' ? 'moderate run' : 'brisk walk'} effort level.`});
+    }
+
+    // HR drift: compare first-half avg to second-half avg
+    if (state.hrBuf.length > 200){
+      const half = Math.floor(state.hrBuf.length/2);
+      let a=0, b=0;
+      for (let i=0; i<half; i++) a += state.hrBuf[i].bpm;
+      for (let i=half; i<state.hrBuf.length; i++) b += state.hrBuf[i].bpm;
+      a /= half; b /= (state.hrBuf.length - half);
+      const drift = b - a;
+      if (drift > 8){
+        out.push({level:'watch', title:'HR drift detected',
+          body:`HR rose ${drift.toFixed(1)} bpm from first to second half of the session without pace change. Typical cardiovascular drift from dehydration or heat — sip fluids earlier next time.`});
+      }
+    }
+
+    // Zone concentration
+    const tiz = state.timeInZone;
+    const total = Object.values(tiz).reduce((a,b)=>a+b, 0);
+    if (total > 60){
+      const z4z5 = (tiz.Z4||0) + (tiz.Z5||0) + (tiz.Z6||0) + (tiz.Z7||0);
+      if (z4z5/total > 0.4 && state.mode === 'run'){
+        out.push({level:'alert', title:'Heavy time in high zones',
+          body:`${Math.round(100*z4z5/total)}% of session was in Z4+. Excellent for workout days but risky every day. Follow up with easy/recovery sessions.`});
+      }
+    }
+    return out;
+  }
+
+  function maxKeyOf(obj){
+    let best = null, v = -1;
+    for (const k of Object.keys(obj)) if (obj[k] > v){ v = obj[k]; best = k; }
+    return v > 0 ? best : null;
+  }
+
+  function renderAdviceList(hostId, items){
+    const host = $(hostId); if (!host) return;
+    const colorFor = l => l==='alert' ? '#EF4444' : l==='watch' ? '#F59E0B' : '#10B981';
+    const iconFor  = l => l==='alert' ? '!' : l==='watch' ? '•' : '✓';
+    let html = '';
+    for (const it of items){
+      html += `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:0 0 22px;height:22px;border-radius:50%;background:${colorFor(it.level)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px">${iconFor(it.level)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px;margin-bottom:2px">${it.title}</div>
+          <div class="muted" style="font-size:11.5px;line-height:1.5">${it.body}</div>
+        </div>
+      </div>`;
+    }
+    host.innerHTML = html;
+  }
+  function renderAdviceHeatmap(){ renderAdviceList('adviceHeatmap', advisoryHeatmap()); }
+  function renderAdviceBalance(){ renderAdviceList('adviceBalance', advisoryBalance()); }
+  function renderAdviceGait()   { renderAdviceList('adviceGait',    advisoryGait());    }
+  function renderAdviceHR()     { renderAdviceList('adviceHR',      advisoryHR());      }
+
+  // ---------------- HR tab (live chart + metrics) ----------------
+  function renderHRTab(){
+    const avg = state.hrN ? Math.round(state.hrSum/state.hrN) : 0;
+    $('hrAvgMetric').textContent  = avg;
+    $('hrMaxMetric').textContent  = Math.round(state.hrMax);
+    $('hrZoneMetric').textContent = hrZone(state.hrCur).z;
+    // Drift: bpm/min over the session, fit simple slope on hrBuf
+    let drift = 0;
+    if (state.hrBuf.length > 60){
+      const first = state.hrBuf[0].t;
+      const last  = state.hrBuf[state.hrBuf.length-1].t;
+      const halfT = (first + last)/2;
+      let aS=0, aN=0, bS=0, bN=0;
+      for (const h of state.hrBuf){ if (h.t < halfT){ aS += h.bpm; aN++; } else { bS += h.bpm; bN++; } }
+      if (aN && bN){
+        const d = (bS/bN) - (aS/aN);
+        const minutes = (last - first)/1000/60/2;
+        drift = minutes > 0 ? d/minutes : 0;
+      }
+    }
+    $('hrDriftMetric').textContent = drift.toFixed(1);
+
+    // Reuse our drawSeriesGeneric with a wider window for session-scale HR
+    drawSeriesGeneric('chartHRanalyze', state.hrBuf, 'bpm', '#F43F5E', {ymin:50, ymax:200});
+  }
+
+  // ---------------- Trends (longitudinal aggregates) ----------------
+  function filteredSessions(){
+    const all = loadSessions();
+    const cutoff = Date.now() - state.trendWindowDays * 86400000;
+    return all.filter(s => {
+      const t = new Date(s.date).getTime();
+      if (isNaN(t)) return false;
+      if (t < cutoff) return false;
+      if (state.trendMode !== 'all' && s.mode !== state.trendMode) return false;
+      return true;
+    });
+  }
+
+  function renderTrends(){
+    const sessions = filteredSessions();
+    const win = state.trendWindowDays;
+    const winLabel = (
+      win <= 30 ? '1 month' :
+      win <= 90 ? '3 months' :
+      win <= 180 ? '6 months' :
+      win <= 365 ? '1 year' :
+      win <= 1095 ? '3 years' :
+      win <= 1825 ? '5 years' : 'all time'
+    );
+    const modeLabel = state.trendMode === 'all' ? 'all activities' : state.trendMode + ' only';
+
+    // Summary line
+    const totalDistKm = sessions.reduce((a,s)=>a + (s.distanceM||0), 0)/1000;
+    const totalDurSec = sessions.reduce((a,s)=>a + (s.durationSec||0), 0);
+    $('trendSummary').textContent =
+      sessions.length === 0
+        ? `No ${state.trendMode==='all'?'sessions':state.trendMode+' sessions'} in the last ${winLabel}. History builds as you complete sessions.`
+        : `${sessions.length} session${sessions.length>1?'s':''} · ${totalDistKm.toFixed(1)} km · ${fmtMMSS(Math.round(totalDurSec))} moving · ${winLabel} · ${modeLabel}`;
+
+    $('heatTrendTag').textContent = `${sessions.length} sessions`;
+    $('balTrendTag').textContent  = `${sessions.length} sessions`;
+    $('gaitTrendTag').textContent = `${sessions.length} sessions`;
+    $('hrTrendTag').textContent   = `${sessions.length} sessions`;
+
+    if (sessions.length === 0){
+      const empty = '<div class="muted" style="padding:12px 4px;font-size:12.5px;text-align:center">No sessions in this window. Complete at least one session (Start a new one from Home after a short walk) to populate trends.</div>';
+      $('trendHeatmap').innerHTML = empty;
+      $('trendBalance').innerHTML = empty;
+      $('trendGait').innerHTML    = empty;
+      $('trendHR').innerHTML      = empty;
+      return;
+    }
+
+    // Averages
+    const avgOf = (key, sub) => {
+      let s=0,n=0; for (const x of sessions){
+        const v = sub ? (x[key] ? x[key][sub] : null) : x[key];
+        if (typeof v === 'number' && !isNaN(v)){ s += v; n++; }
+      }
+      return n ? s/n : 0;
+    };
+    const avgH = avgOf('balance','heel'), avgM = avgOf('balance','mid'), avgF = avgOf('balance','fore');
+    const avgL = avgOf('lr','L'),         avgR = avgOf('lr','R');
+    const avgCad = avgOf('cadence');
+    const avgStride = avgOf('strideLen');
+    const avgVO = avgOf('vo'), avgVR = avgOf('vr');
+    const avgGctL = avgOf('gct','L'),     avgGctR = avgOf('gct','R');
+    const avgHR = avgOf('avgHR'), maxHR = Math.max(0, ...sessions.map(s=>s.maxHR||0));
+
+    // Heatmap trend — zone distribution
+    $('trendHeatmap').innerHTML = `
+      <div class="row-between" style="padding:6px 0;font-size:12px">
+        <span><span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--s1);margin-right:8px"></span>Heel</span>
+        <span><strong>${Math.round(avgH)}%</strong> avg</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span><span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--s2);margin-right:8px"></span>Midfoot</span>
+        <span><strong>${Math.round(avgM)}%</strong> avg</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span><span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--s3);margin-right:8px"></span>Forefoot</span>
+        <span><strong>${Math.round(avgF)}%</strong> avg</span>
+      </div>`;
+
+    // Balance trend — L/R + dominant strike
+    let strikeL={heel:0,mid:0,fore:0}, strikeR={heel:0,mid:0,fore:0};
+    for (const s of sessions){
+      if (s.strike){ if (s.strike.L) strikeL[s.strike.L]++; if (s.strike.R) strikeR[s.strike.R]++; }
+    }
+    const domL = maxKeyOf(strikeL) || '—', domR = maxKeyOf(strikeR) || '—';
+    $('trendBalance').innerHTML = `
+      <div class="row-between" style="padding:6px 0;font-size:12px">
+        <span>L/R average load</span>
+        <span><strong>${Math.round(avgL)} / ${Math.round(avgR)} %</strong></span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>Asymmetry</span>
+        <span><strong>${Math.round(Math.abs(avgL-50)*2)}%</strong></span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>Dominant strike</span>
+        <span><strong>L: ${domL}</strong>  ·  <strong>R: ${domR}</strong></span>
+      </div>`;
+
+    // Gait trend
+    $('trendGait').innerHTML = `
+      <div class="row-between" style="padding:6px 0;font-size:12px">
+        <span>Cadence (avg)</span><span><strong>${Math.round(avgCad)}</strong> spm</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>Stride length (avg)</span><span><strong>${avgStride.toFixed(2)}</strong> m</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>Vertical oscillation</span><span><strong>${avgVO.toFixed(1)}</strong> cm</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>Vertical ratio</span><span><strong>${avgVR.toFixed(1)}</strong> %</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>GCT (L / R avg)</span><span><strong>${Math.round(avgGctL)} / ${Math.round(avgGctR)}</strong> ms</span>
+      </div>`;
+
+    // HR trend + time-in-zone totals across all sessions
+    let tizTotals = {Z1:0,Z2:0,Z3:0,Z4:0,Z5:0,Z6:0,Z7:0};
+    for (const s of sessions) if (s.tiz){
+      for (const k of Object.keys(tizTotals)) tizTotals[k] += (s.tiz[k]||0);
+    }
+    const tizSum = Object.values(tizTotals).reduce((a,b)=>a+b,0) || 1;
+    const tizRows = ['Z1','Z2','Z3','Z4','Z5','Z6','Z7']
+      .filter(k => tizTotals[k] > 0)
+      .map(k => `<div class="row-between" style="padding:5px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${({Z1:'#9CA3AF',Z2:'#3B82F6',Z3:'#10B981',Z4:'#F59E0B',Z5:'#EF4444',Z6:'#B91C1C',Z7:'#7F1D1D'})[k]};margin-right:8px"></span>${k}</span>
+        <span><strong>${fmtMMSS(Math.round(tizTotals[k]))}</strong> · ${Math.round(100*tizTotals[k]/tizSum)}%</span>
+      </div>`).join('');
+    $('trendHR').innerHTML = `
+      <div class="row-between" style="padding:6px 0;font-size:12px">
+        <span>Avg HR</span><span><strong>${Math.round(avgHR)}</strong> bpm</span>
+      </div>
+      <div class="row-between" style="padding:6px 0;font-size:12px;border-top:1px solid var(--border)">
+        <span>Peak HR</span><span><strong>${Math.round(maxHR)}</strong> bpm</span>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:var(--text-2);letter-spacing:.5px;text-transform:uppercase">Time in zone (cumulative)</div>
+      ${tizRows || '<div class="muted" style="padding:6px 0;font-size:11px">No zone data yet</div>'}`;
   }
 
   function renderHeatmap(){
@@ -2123,6 +3217,30 @@
     });
   });
 
+  // Trend window / activity filter
+  document.querySelectorAll('#trendWindow button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#trendWindow button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      state.trendWindowDays = Number(b.dataset.win);
+      renderTrends();
+    });
+  });
+  $('trendMode').addEventListener('change', () => {
+    state.trendMode = $('trendMode').value;
+    renderTrends();
+  });
+
+  // Gait "Learn" sub-tabs (educational)
+  document.querySelectorAll('#gaitLearnTabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#gaitLearnTabs button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelectorAll('.learn-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('learn-'+b.dataset.learn).classList.add('active');
+    });
+  });
+
   // Activity view toggle (Time / Distance)
   document.querySelectorAll('#viewToggle button').forEach(b => {
     b.addEventListener('click', () => {
@@ -2132,8 +3250,539 @@
     });
   });
 
+  // Mode toggles (Home + Profile both wired)
+  document.querySelectorAll('#modeToggle button, #profileMode button').forEach(b => {
+    b.addEventListener('click', () => setMode(b.dataset.mode));
+  });
+
+  // ---------- PROFILE (persist to localStorage) ----------
+  const LS_KEY = 'smartstride.profile.v1';
+
+  function loadProfile(){
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      Object.assign(state.profile, p.profile || {});
+      if (p.mode) state.mode = p.mode;
+    } catch(e){ /* ignore corrupt */ }
+  }
+  function saveProfile(){
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        profile: state.profile,
+        mode:    state.mode
+      }));
+      flashSaved();
+    } catch(e){ /* storage full / private mode */ }
+  }
+  let savedTimer = null;
+  function flashSaved(){
+    const el = $('profileSaved'); if (!el) return;
+    el.classList.add('show');
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(() => el.classList.remove('show'), 900);
+  }
+
+  // Populate form from state
+  function hydrateProfileForm(){
+    $('profileName').value    = state.profile.name   || '';
+    $('profileAge').value     = state.profile.age    ?? '';
+    $('profileHeight').value  = state.profile.height ?? '';
+    $('profileWeight').value  = state.profile.weight ?? '';
+    $('profileHRrest').value  = state.profile.hrRest ?? '';
+    // Max HR: user override if set, else 220-age, else empty placeholder
+    const ageHRmax = state.profile.age ? (220 - Number(state.profile.age)) : null;
+    $('profileHRmax').value = state.profile.hrMax ?? (ageHRmax ?? '');
+    state.hrMaxAssumed = effectiveMaxHR();
+    // HR reserve
+    if (state.profile.hrRest && effectiveMaxHR()){
+      $('profileHRR').value = (effectiveMaxHR() - Number(state.profile.hrRest)) + ' bpm';
+    } else {
+      $('profileHRR').value = '';
+    }
+    document.querySelectorAll('#profileSex button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.sex === state.profile.sex);
+    });
+    document.querySelectorAll('#profileMode button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.mode === state.mode);
+    });
+    document.querySelectorAll('#modeToggle button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.mode === state.mode);
+    });
+    document.querySelectorAll('#zoneScheme button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.scheme === state.profile.zoneScheme);
+    });
+    document.querySelectorAll('#zoneMode button').forEach(b=>{
+      const isManual = state.profile.zonesManual;
+      b.classList.toggle('active', (b.dataset.zmode === 'manual') === isManual);
+    });
+    // Avatar
+    const ring = $('profileAvatar');
+    ring.innerHTML = '';
+    if (state.profile.photo){
+      const img = document.createElement('img');
+      img.src = state.profile.photo; img.alt = 'avatar';
+      ring.appendChild(img);
+    } else {
+      const s = document.createElement('span');
+      s.id = 'profileInitials';
+      s.textContent = initialsFromName(state.profile.name);
+      ring.appendChild(s);
+    }
+    renderZones();
+    renderShoes();
+    updateHomeGreeting();
+  }
+
+  // Render the zones card — either read-only rows or editable number inputs
+  function renderZones(){
+    const host = $('zonesDisplay');
+    if (!host) return;
+    const zb = zoneBounds();
+    const meta = zoneMeta();
+    $('zonesMethod').textContent = zb.method;
+    const manual = state.profile.zonesManual;
+
+    let html = '';
+    for (let i=0;i<meta.length;i++){
+      const m = meta[i];
+      const [lo, hi] = zb[m.key];
+      html += `
+        <div class="row-between" style="padding:7px 2px;border-bottom:1px solid var(--border);gap:10px">
+          <span style="display:flex;align-items:center;gap:8px;flex:0 0 150px">
+            <span style="width:10px;height:10px;border-radius:2px;background:${m.color};display:inline-block"></span>
+            <span>${m.label}</span>
+          </span>`;
+      if (manual){
+        html += `
+          <span style="flex:1;display:flex;align-items:center;gap:6px;justify-content:flex-end">
+            <input type="number" class="zone-input" data-zone-idx="${i}"
+                   min="30" max="230" step="1" value="${lo}"
+                   style="width:72px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-family:inherit;font-size:13px;text-align:right"/>
+            <span class="muted">to</span>
+            <span style="min-width:40px;text-align:right">${hi}</span>
+            <span class="muted" style="font-size:11px">bpm</span>
+          </span>`;
+      } else {
+        html += `
+          <span style="flex:1;text-align:right;font-weight:600">
+            ${lo} – ${hi}
+            <span class="muted" style="font-weight:400;font-size:11px"> bpm</span>
+          </span>`;
+      }
+      html += `</div>`;
+    }
+    host.innerHTML = html;
+
+    // Bind input listeners if manual
+    if (manual){
+      host.querySelectorAll('.zone-input').forEach(inp => {
+        inp.addEventListener('input', onZoneInputChange);
+      });
+    }
+  }
+
+  // Lightweight re-render when profile screen is visible — keeps HR reserve / method tag in sync
+  // without stealing focus from active inputs. Only refreshes the non-input bits.
+  let lastZonesSignature = '';
+  function renderProfileLive(){
+    const zb = zoneBounds();
+    const sig = JSON.stringify({m:zb.method, max:zb.max, rest:zb.rest, sch:state.profile.zoneScheme, man:state.profile.zonesManual});
+    if (sig === lastZonesSignature) return;
+    lastZonesSignature = sig;
+    $('zonesMethod').textContent = zb.method;
+    // Only re-render the zones list if not currently editing (no focus inside the zones-display inputs)
+    const active = document.activeElement;
+    const inZones = active && active.classList && active.classList.contains('zone-input');
+    if (!inZones) renderZones();
+  }
+
+  function onZoneInputChange(){
+    const inputs = [...document.querySelectorAll('#zonesDisplay .zone-input')];
+    const vals = inputs.map(i => Number(i.value) || 0);
+    const key = state.profile.zoneScheme === '7' ? 'zoneOverrides7' : 'zoneOverrides5';
+    state.profile[key] = vals;
+    saveProfile();
+    // Do NOT re-render immediately (would steal focus); next re-render will reflect bounds
+  }
+
+  // ---------- SHOES / GEAR ----------
+  function escapeHtml(s){
+    if (!s) return '';
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
+  function generateShoeId(){
+    return 'shoe_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  }
+  function getActiveShoe(){
+    return (state.profile.shoes || []).find(s => s.id === state.profile.activeShoeId) || null;
+  }
+  function shoePctWorn(shoe){
+    return Math.min(200, (shoe.distanceM/1000) / (shoe.retirementKm || 800) * 100);
+  }
+  function shoeProgressColor(pct){
+    return pct >= 100 ? '#EF4444' : pct >= 70 ? '#F59E0B' : '#10B981';
+  }
+  function daysSincePurchase(shoe){
+    if (!shoe.purchaseDate) return null;
+    const d = new Date(shoe.purchaseDate);
+    if (isNaN(d)) return null;
+    return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+  }
+
+  function renderShoes(){
+    const host = $('shoesList');
+    if (!host) return;
+    const shoes = state.profile.shoes || [];
+    $('shoesCount').textContent = shoes.length ? `${shoes.length} pair${shoes.length>1?'s':''}` : 'none yet';
+    if (!shoes.length){
+      host.innerHTML = '<div class="muted" style="padding:14px 4px;font-size:12.5px;text-align:center">No pairs yet — add your first below.</div>';
+      return;
+    }
+
+    // Sort: active first, then by distance descending, retired last
+    const sorted = [...shoes].sort((a, b) => {
+      if (a.retired !== b.retired) return a.retired ? 1 : -1;
+      const aActive = a.id === state.profile.activeShoeId ? 0 : 1;
+      const bActive = b.id === state.profile.activeShoeId ? 0 : 1;
+      if (aActive !== bActive) return aActive - bActive;
+      return (b.distanceM||0) - (a.distanceM||0);
+    });
+
+    let html = '';
+    for (const s of sorted){
+      const km = (s.distanceM || 0) / 1000;
+      const pct = shoePctWorn(s);
+      const progColor = shoeProgressColor(pct);
+      const isActive = s.id === state.profile.activeShoeId;
+      const days = daysSincePurchase(s);
+      let badgeHtml = '';
+      if (s.retired) badgeHtml = '<span class="badge" style="background:rgba(100,116,139,.18);color:var(--text-2)">Retired</span>';
+      else if (isActive) badgeHtml = '<span class="badge good">Active</span>';
+      else if (pct >= 100) badgeHtml = '<span class="badge" style="background:rgba(239,68,68,.18);color:#EF4444">Retire me!</span>';
+      else if (pct >= 70) badgeHtml = '<span class="badge warn">Nearing retirement</span>';
+
+      html += `<div class="shoe-row ${s.retired ? 'retired' : ''}">
+        <div class="row-between" style="gap:10px;align-items:flex-start">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+            <div class="avatar" style="background:${s.color || '#3B82F6'}">👟</div>
+            <div style="min-width:0;flex:1">
+              <div class="name" style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(s.nickname)}</div>
+              <div class="muted" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${s.brand || s.model ? escapeHtml([s.brand, s.model].filter(Boolean).join(' · ')) : '—'}
+              </div>
+            </div>
+          </div>
+          ${badgeHtml}
+        </div>
+        <div style="margin:10px 0 4px;height:6px;background:var(--surface);border-radius:999px;overflow:hidden">
+          <div style="height:100%;width:${Math.min(100, pct)}%;background:${progColor};transition:width .4s ease"></div>
+        </div>
+        <div class="row-between" style="font-size:11px;color:var(--text-2)">
+          <span><strong style="color:var(--text)">${km.toFixed(1)}</strong> / ${s.retirementKm || 800} km · ${Math.round(pct)}%</span>
+          <span>${days != null ? days + ' days' : 'no date'}</span>
+        </div>
+        <div class="shoe-actions">
+          ${(!s.retired && !isActive) ? `<button class="shoe-act" data-act="activate" data-id="${s.id}">Set active</button>` : ''}
+          ${!s.retired ? `<button class="shoe-act" data-act="retire" data-id="${s.id}">Retire</button>` : `<button class="shoe-act" data-act="unretire" data-id="${s.id}">Unretire</button>`}
+          <button class="shoe-act danger" data-act="delete" data-id="${s.id}" aria-label="Delete">×</button>
+        </div>
+      </div>`;
+    }
+    host.innerHTML = html;
+
+    host.querySelectorAll('.shoe-act').forEach(b => {
+      b.addEventListener('click', () => {
+        const id = b.dataset.id;
+        const act = b.dataset.act;
+        if (act === 'activate'){
+          state.profile.activeShoeId = id;
+        } else if (act === 'retire'){
+          const s = state.profile.shoes.find(x => x.id === id);
+          if (s){ s.retired = true; s.retiredDate = new Date().toISOString(); }
+          if (state.profile.activeShoeId === id) state.profile.activeShoeId = null;
+        } else if (act === 'unretire'){
+          const s = state.profile.shoes.find(x => x.id === id);
+          if (s){ s.retired = false; s.retiredDate = null; }
+        } else if (act === 'delete'){
+          if (!confirm('Delete this pair? Its distance history will be lost.')) return;
+          state.profile.shoes = state.profile.shoes.filter(x => x.id !== id);
+          if (state.profile.activeShoeId === id) state.profile.activeShoeId = null;
+        }
+        saveProfile();
+        renderShoes();
+      });
+    });
+  }
+
+  // Add-shoe form
+  function openShoeForm(){
+    $('shoesAddForm').style.display = 'block';
+    $('shoesAddBtn').style.display = 'none';
+    $('shoePurchase').value = new Date().toISOString().slice(0,10);
+    document.querySelectorAll('#shoeColor button').forEach(b => b.classList.remove('active'));
+    const first = document.querySelector('#shoeColor button[data-color="#3B82F6"]');
+    if (first) first.classList.add('active');
+  }
+  function closeShoeForm(){
+    $('shoesAddForm').style.display = 'none';
+    $('shoesAddBtn').style.display = 'block';
+    ['shoeNickname','shoeBrand','shoeModel'].forEach(id => $(id).value = '');
+    $('shoeRetireKm').value = '800';
+  }
+  $('shoesAddBtn').addEventListener('click', openShoeForm);
+  $('shoesCancelBtn').addEventListener('click', closeShoeForm);
+  $('shoesSaveBtn').addEventListener('click', () => {
+    const nick = $('shoeNickname').value.trim();
+    if (!nick){ alert('Please enter a nickname for the shoes.'); return; }
+    const colorBtn = document.querySelector('#shoeColor button.active');
+    const color = colorBtn ? colorBtn.dataset.color : '#3B82F6';
+    const shoe = {
+      id: generateShoeId(),
+      nickname: nick,
+      brand: $('shoeBrand').value.trim(),
+      model: $('shoeModel').value.trim(),
+      color,
+      purchaseDate: $('shoePurchase').value || null,
+      retirementKm: Math.max(50, Math.min(3000, Number($('shoeRetireKm').value) || 800)),
+      distanceM: 0,
+      retired: false,
+      retiredDate: null
+    };
+    state.profile.shoes = state.profile.shoes || [];
+    state.profile.shoes.push(shoe);
+    // If no active shoe, make this one active
+    if (!state.profile.activeShoeId) state.profile.activeShoeId = shoe.id;
+    saveProfile();
+    closeShoeForm();
+    renderShoes();
+  });
+  // Shoe color picker
+  document.querySelectorAll('#shoeColor button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#shoeColor button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // Home screen active-shoe chip
+  function updateHomeShoeChip(){
+    const chip = $('homeShoeChip'); if (!chip) return;
+    const s = getActiveShoe();
+    if (!s){ chip.style.display = 'none'; return; }
+    chip.style.display = 'flex';
+    $('hsColor').style.background = s.color || '#3B82F6';
+    $('hsNick').textContent = s.nickname;
+    const km = (s.distanceM||0)/1000;
+    const days = daysSincePurchase(s);
+    $('hsKm').textContent = `${km.toFixed(1)} / ${s.retirementKm || 800} km${days!=null ? ' · '+days+' days old' : ''}`;
+    const pct = Math.round(shoePctWorn(s));
+    $('hsPct').textContent = pct + '%';
+    $('hsPct').style.color = shoeProgressColor(pct);
+  }
+
+  function initialsFromName(n){
+    if (!n) return '—';
+    const parts = n.trim().split(/\s+/).slice(0,2);
+    return parts.map(p=>p[0].toUpperCase()).join('') || '—';
+  }
+
+  function updateHomeGreeting(){
+    const heroName = $('heroName');
+    const heroGreet = $('heroGreet');
+    if (!heroName) return;
+    const name = state.profile.name ? state.profile.name.split(/\s+/)[0] : 'Athlete';
+    heroName.textContent = name;
+    const h = new Date().getHours();
+    heroGreet.textContent = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  }
+
+  // Field bindings
+  function bindText(id, key){
+    $(id).addEventListener('input', () => {
+      const val = $(id).value;
+      state.profile[key] = (val === '') ? null : val;
+      if (key === 'age'){
+        const a = Number(val) || 0;
+        // If user hasn't manually set hrMax, refresh its display to 220-age
+        if (!state.profile.hrMax){
+          $('profileHRmax').value = a ? String(220 - a) : '';
+        }
+        state.hrMaxAssumed = effectiveMaxHR();
+      }
+      if (key === 'hrMax' || key === 'hrRest' || key === 'age'){
+        // Recompute HR reserve display
+        const m = effectiveMaxHR(), r = Number(state.profile.hrRest) || 0;
+        $('profileHRR').value = r ? (m - r) + ' bpm' : '';
+        state.hrMaxAssumed = m;
+        // Clear stale manual overrides so auto mode recomputes cleanly
+        renderZones();
+      }
+      if (key === 'name') updateHomeGreeting();
+      saveProfile();
+    });
+  }
+  bindText('profileName',   'name');
+  bindText('profileAge',    'age');
+  bindText('profileHeight', 'height');
+  bindText('profileWeight', 'weight');
+  bindText('profileHRmax',  'hrMax');
+  bindText('profileHRrest', 'hrRest');
+
+  document.querySelectorAll('#profileSex button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#profileSex button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      state.profile.sex = b.dataset.sex;
+      saveProfile();
+    });
+  });
+
+  // Zone scheme (5 / 7)
+  document.querySelectorAll('#zoneScheme button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#zoneScheme button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      state.profile.zoneScheme = b.dataset.scheme;
+      // Reset session time-in-zone counters (the zone set changed)
+      state.timeInZone = {Z1:0,Z2:0,Z3:0,Z4:0,Z5:0,Z6:0,Z7:0};
+      state.lastZoneT = 0;
+      renderZones();
+      saveProfile();
+    });
+  });
+
+  // Zone boundaries mode (auto / manual)
+  document.querySelectorAll('#zoneMode button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#zoneMode button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const manual = b.dataset.zmode === 'manual';
+      state.profile.zonesManual = manual;
+      // When entering manual mode, seed overrides from the current auto bounds so the user has a starting point.
+      if (manual){
+        const zb = zoneBounds();
+        const meta = zoneMeta();
+        const key = state.profile.zoneScheme === '7' ? 'zoneOverrides7' : 'zoneOverrides5';
+        if (!Array.isArray(state.profile[key]) || state.profile[key].length !== meta.length){
+          state.profile[key] = meta.map(m => zb[m.key][0]);
+        }
+      }
+      renderZones();
+      saveProfile();
+    });
+  });
+
+  // Photo upload — downscale to 256×256 before storing
+  $('profilePhoto').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const side = 256;
+        const c = document.createElement('canvas');
+        c.width = side; c.height = side;
+        const ctx = c.getContext('2d');
+        // cover-crop
+        const iw = img.width, ih = img.height;
+        const scale = Math.max(side/iw, side/ih);
+        const sw = iw*scale, sh = ih*scale;
+        const sx = (side - sw)/2, sy = (side - sh)/2;
+        ctx.drawImage(img, sx, sy, sw, sh);
+        const dataUrl = c.toDataURL('image/jpeg', 0.85);
+        state.profile.photo = dataUrl;
+        hydrateProfileForm();
+        saveProfile();
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $('profileReset').addEventListener('click', () => {
+    if (!confirm('Clear all profile data from this device?')) return;
+    state.profile = {name:'', photo:'', sex:'', age:null, height:null, weight:null};
+    localStorage.removeItem(LS_KEY);
+    hydrateProfileForm();
+  });
+
+  // ---------- SESSION HISTORY ----------
+  const LS_SESSIONS = 'smartstride.sessions.v1';
+  const MIN_SAVE_SEC = 30;   // don't persist sessions shorter than this
+  const MAX_SESSIONS = 5000;
+
+  function loadSessions(){
+    try {
+      const raw = localStorage.getItem(LS_SESSIONS);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e){ return []; }
+  }
+  function saveSessionsArr(arr){
+    try { localStorage.setItem(LS_SESSIONS, JSON.stringify(arr)); } catch(e){}
+  }
+
+  // Snapshot the current session into a history record (only if substantial).
+  function persistCurrentSession(){
+    if (state.elapsed < MIN_SAVE_SEC) return;
+    if (state.gBuf.length < 2) return;
+    const last = state.gBuf[state.gBuf.length-1];
+    const distM = last ? last.dist : 0;
+    if (distM < 20) return;   // < 20m — probably noise
+
+    // Session-avg balance (heel/mid/fore) across session samples
+    let h=0, m=0, f=0, lsum=0, rsum=0, n = state.sessionSamples.length || 1;
+    for (const s of state.sessionSamples){
+      h += (s.l1 + s.r1); m += (s.l2 + s.r2); f += (s.l3 + s.r3);
+      lsum += s.lsum; rsum += s.rsum;
+    }
+    const tot = h+m+f || 1;
+    const tlr = lsum + rsum || 1;
+
+    // Strike patterns
+    const strikeOf = (side) => {
+      const o = state.strikes[side], total = o.heel+o.mid+o.fore;
+      if (total < 3) return null;
+      return [['heel',o.heel],['mid',o.mid],['fore',o.fore]].sort((a,b)=>b[1]-a[1])[0][0];
+    };
+
+    const rec = {
+      id: 'sess_' + Date.now().toString(36),
+      date: new Date(state.t0).toISOString(),
+      mode: state.mode || 'walk',
+      durationSec: state.elapsed,
+      distanceM: Math.round(distM),
+      steps: state.stepCount,
+      cadence: state.cadence || 0,
+      strideLen: Number((state.strideLen||0).toFixed(2)),
+      avgHR: state.hrN ? Math.round(state.hrSum/state.hrN) : 0,
+      maxHR:  Math.round(state.hrMax),
+      restHR: Number(state.profile.hrRest) || null,
+      peakLoad: Math.round(state.peak.sum),
+      balance:  {heel: Math.round(h/tot*100), mid: Math.round(m/tot*100), fore: Math.round(f/tot*100)},
+      lr:       {L:    Math.round(lsum/tlr*100), R:    Math.round(rsum/tlr*100)},
+      strike:   {L: strikeOf('L'), R: strikeOf('R')},
+      gct:      {L: state.gctAvg.L || 0, R: state.gctAvg.R || 0},
+      vo: Number(state.voAvg.toFixed(1)),
+      vr: Number((state.verticalRatio||0).toFixed(1)),
+      tiz: {...state.timeInZone},
+      zoneScheme: state.profile.zoneScheme,
+      altGain: Math.round(state.altGain),
+      altLoss: Math.round(state.altLoss)
+    };
+
+    const arr = loadSessions();
+    arr.push(rec);
+    while (arr.length > MAX_SESSIONS) arr.shift();
+    saveSessionsArr(arr);
+  }
+
   // ---------- CONTROLS ----------
   $('btnStart').addEventListener('click', () => {
+    // Snapshot the session that just ended into history before we reset
+    persistCurrentSession();
     // Reset session
     state.t0 = Date.now();
     state.elapsed = 0;
@@ -2170,6 +3819,9 @@
 
   // ---------- BOOT ----------
   $('hdrSub').textContent = SCREEN_TITLES.home.s;
+  loadProfile();
+  setMode(state.mode);
+  hydrateProfileForm();
   startTimers();
   renderLoop();
 })();
