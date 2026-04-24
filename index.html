@@ -189,7 +189,15 @@
   .home-shoe-chip .km{color:var(--text-2);font-size:11px;margin-top:1px}
   .home-shoe-chip .pct{font-weight:700;font-size:14px}
 
-  /* Learn (gait education) */
+  /* Info (educational) panes */
+  .info-pane{display:none}
+  .info-pane.active{display:block}
+  .info-body{font-size:12.5px;line-height:1.6;color:var(--text-2)}
+  .info-body p{margin:0 0 8px}
+  .info-body p:last-child{margin-bottom:0}
+  .info-body strong{color:var(--text)}
+
+  /* Learn (gait education — legacy, hidden) */
   .learn-pane{display:none}
   .learn-pane.active{display:block}
   .issue-row{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
@@ -621,6 +629,7 @@
         <button data-sub="balance">Balance</button>
         <button data-sub="gait">Gait</button>
         <button data-sub="hr">HR</button>
+        <button data-sub="info">Info</button>
       </div>
 
       <!-- HEATMAP -->
@@ -803,15 +812,24 @@
           <div id="trendGait"></div>
         </div>
 
-        <!-- Understanding gait — educational section -->
-        <div class="card">
-          <div class="card-title"><h3>Understanding gait</h3><span class="tag">learn</span></div>
-
-          <div class="subtabs" id="gaitLearnTabs" style="margin-bottom:12px">
-            <button class="active" data-learn="walk">Walking</button>
-            <button data-learn="run">Running</button>
-            <button data-learn="issues">Common issues</button>
+        <!-- Understanding gait content moved to Info sub-tab -->
+        <div class="card" style="padding:12px 14px">
+          <div class="row-between" style="gap:10px">
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:13px;margin-bottom:2px">Want to understand these metrics?</div>
+              <div class="muted" style="font-size:11.5px">Walking/running gait, common issues, and fixes are now in the <strong style="color:var(--accent)">Info</strong> sub-tab.</div>
+            </div>
+            <button class="btn secondary" id="goToInfoBtn" style="flex:0 0 auto;padding:8px 14px;font-size:12px">Open Info →</button>
           </div>
+        </div>
+
+        <!-- SHELVED: the old in-place Understanding-gait content (moved to Info) -->
+        <div class="subtabs" id="gaitLearnTabs_legacy" style="display:none">
+          <button class="active" data-learn="walk"></button>
+          <button data-learn="run"></button>
+          <button data-learn="issues"></button>
+        </div>
+        <div style="display:none">
 
           <!-- Walking gait phases -->
           <div class="learn-pane active" id="learn-walk">
@@ -1104,6 +1122,516 @@
         <div class="card">
           <div class="card-title"><h3>HR trend</h3><span class="tag" id="hrTrendTag">—</span></div>
           <div id="trendHR"></div>
+        </div>
+      </div>
+
+      <!-- INFO (educational content for the whole app) -->
+      <div class="subpane" id="sub-info">
+        <div class="subtabs" id="infoTabs" style="margin-bottom:12px">
+          <button class="active" data-info="gait">Gait</button>
+          <button data-info="biomech">Biomech</button>
+          <button data-info="hr">HR</button>
+          <button data-info="pressure">Pressure</button>
+        </div>
+
+        <!-- INFO · GAIT -->
+        <div class="info-pane active" id="info-gait">
+          <div class="card">
+            <div class="card-title"><h3>Walking gait cycle</h3></div>
+            <div style="background:#0e1114;border:1px solid var(--border);border-radius:10px;padding:12px 6px;margin-bottom:10px">
+              <svg viewBox="0 0 520 160" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                <line x1="0" y1="140" x2="520" y2="140" stroke="#334050" stroke-width="1.2"/>
+                <g transform="translate(50,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="35" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="44" x2="25" y2="90"/>
+                  <line x1="25" y1="90" x2="15" y2="138"/>
+                  <line x1="25" y1="90" x2="40" y2="120"/>
+                  <line x1="40" y1="120" x2="55" y2="140"/>
+                  <line x1="25" y1="60" x2="10" y2="85"/>
+                  <line x1="25" y1="60" x2="40" y2="78"/>
+                  <circle cx="55" cy="140" r="5" fill="#EF4444" stroke="none"/>
+                </g>
+                <text x="80" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Heel strike</text>
+                <g transform="translate(175,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="30" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="39" x2="25" y2="90"/>
+                  <line x1="25" y1="90" x2="25" y2="138"/>
+                  <line x1="25" y1="90" x2="35" y2="138"/>
+                  <line x1="25" y1="60" x2="15" y2="85"/>
+                  <line x1="25" y1="60" x2="35" y2="85"/>
+                  <circle cx="25" cy="140" r="5" fill="#F59E0B" stroke="none"/>
+                </g>
+                <text x="205" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Midstance</text>
+                <g transform="translate(300,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="35" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="44" x2="22" y2="90"/>
+                  <line x1="22" y1="90" x2="5" y2="138"/>
+                  <line x1="22" y1="90" x2="45" y2="115"/>
+                  <line x1="45" y1="115" x2="55" y2="140"/>
+                  <line x1="22" y1="60" x2="38" y2="85"/>
+                  <line x1="22" y1="60" x2="8" y2="80"/>
+                  <circle cx="5" cy="140" r="5" fill="#3B82F6" stroke="none"/>
+                </g>
+                <text x="330" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Push-off</text>
+                <g transform="translate(425,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="35" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="44" x2="25" y2="90"/>
+                  <line x1="25" y1="90" x2="40" y2="115"/>
+                  <line x1="40" y1="115" x2="50" y2="140"/>
+                  <line x1="25" y1="90" x2="5" y2="120"/>
+                  <line x1="25" y1="60" x2="12" y2="82"/>
+                  <line x1="25" y1="60" x2="40" y2="82"/>
+                </g>
+                <text x="460" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Swing</text>
+                <rect x="14" y="8" width="284" height="14" fill="#10B981" opacity="0.2" rx="2"/>
+                <text x="156" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#10B981">STANCE (~60% of cycle)</text>
+                <rect x="300" y="8" width="212" height="14" fill="#3B82F6" opacity="0.2" rx="2"/>
+                <text x="406" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#3B82F6">SWING (~40%)</text>
+              </svg>
+            </div>
+            <div class="info-body">
+              <p><strong>What good walking looks like:</strong> heel contacts first (lateral side), weight rolls smoothly through the midfoot, toes push off last. Stride length matches your height — don't over-reach. Cadence 100–125 spm for moderate pace.</p>
+              <p><strong>Signals on this app:</strong> S1 (heel) peaks first, S2 (midfoot) next, S3 (forefoot) last — cleanly separated. L/R load share stays close to 50/50 over a session.</p>
+              <p><strong>Double-support:</strong> walkers always have at least one foot on the ground — ~10% overlap per step.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Running gait cycle</h3></div>
+            <div style="background:#0e1114;border:1px solid var(--border);border-radius:10px;padding:12px 6px;margin-bottom:10px">
+              <svg viewBox="0 0 520 160" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto">
+                <line x1="0" y1="140" x2="520" y2="140" stroke="#334050" stroke-width="1.2"/>
+                <g transform="translate(40,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="30" cy="28" r="9" fill="#94A3B8"/>
+                  <line x1="30" y1="37" x2="28" y2="85"/>
+                  <line x1="28" y1="85" x2="30" y2="138"/>
+                  <line x1="28" y1="85" x2="50" y2="118"/>
+                  <line x1="50" y1="118" x2="62" y2="95"/>
+                  <line x1="30" y1="55" x2="10" y2="75"/>
+                  <line x1="30" y1="55" x2="52" y2="78"/>
+                  <circle cx="30" cy="140" r="5" fill="#F59E0B" stroke="none"/>
+                </g>
+                <text x="80" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Initial contact</text>
+                <g transform="translate(170,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="24" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="33" x2="25" y2="85"/>
+                  <line x1="25" y1="85" x2="25" y2="138"/>
+                  <line x1="25" y1="85" x2="42" y2="112"/>
+                  <line x1="42" y1="112" x2="55" y2="95"/>
+                  <line x1="25" y1="50" x2="8" y2="68"/>
+                  <line x1="25" y1="50" x2="42" y2="68"/>
+                  <circle cx="25" cy="140" r="5" fill="#F59E0B" stroke="none"/>
+                </g>
+                <text x="200" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Midstance</text>
+                <g transform="translate(295,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="25" cy="25" r="9" fill="#94A3B8"/>
+                  <line x1="25" y1="34" x2="18" y2="82"/>
+                  <line x1="18" y1="82" x2="0" y2="135"/>
+                  <line x1="18" y1="82" x2="40" y2="108"/>
+                  <line x1="40" y1="108" x2="60" y2="90"/>
+                  <line x1="20" y1="50" x2="40" y2="70"/>
+                  <line x1="20" y1="50" x2="6" y2="70"/>
+                  <circle cx="0" cy="135" r="5" fill="#3B82F6" stroke="none"/>
+                </g>
+                <text x="325" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Toe-off</text>
+                <g transform="translate(415,0)" stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="30" cy="18" r="9" fill="#94A3B8"/>
+                  <line x1="30" y1="27" x2="30" y2="78"/>
+                  <line x1="30" y1="78" x2="48" y2="108"/>
+                  <line x1="48" y1="108" x2="60" y2="92"/>
+                  <line x1="30" y1="78" x2="15" y2="100"/>
+                  <line x1="15" y1="100" x2="2" y2="85"/>
+                  <line x1="30" y1="45" x2="50" y2="62"/>
+                  <line x1="30" y1="45" x2="12" y2="60"/>
+                </g>
+                <text x="455" y="158" text-anchor="middle" fill="#9aa0a6" font-size="10" font-family="Calibri">Float (airborne)</text>
+                <rect x="14" y="8" width="270" height="14" fill="#10B981" opacity="0.2" rx="2"/>
+                <text x="149" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#10B981">STANCE (~35%)</text>
+                <rect x="286" y="8" width="226" height="14" fill="#EF4444" opacity="0.2" rx="2"/>
+                <text x="399" y="19" text-anchor="middle" font-size="10" font-family="Calibri" fill="#EF4444">SWING + FLIGHT (~65%)</text>
+              </svg>
+            </div>
+            <div class="info-body">
+              <p><strong>What good running looks like:</strong> foot lands roughly under the center of mass — usually midfoot, sometimes light forefoot — not out in front of you. Quick, springy contact (200–240 ms). Both feet leave the ground between steps — the flight phase that distinguishes running from walking.</p>
+              <p><strong>Signals on this app:</strong> S2 and S3 peak together (or S3 slightly later). Cadence 170–185 spm. Vertical oscillation &lt; 10 cm; vertical ratio &lt; 7%.</p>
+              <p><strong>Efficient cue:</strong> "run tall, run quiet." Tall posture, short ground contact, minimal bounce. Forward drive from hip extension, not pushing the knee forward.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Common gait issues</h3></div>
+
+            <div class="issue-row">
+              <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="100" cy="24" r="7" fill="#94A3B8"/>
+                  <line x1="100" y1="31" x2="100" y2="58"/>
+                  <line x1="100" y1="58" x2="80" y2="80"/>
+                  <line x1="100" y1="58" x2="160" y2="72"/>
+                  <line x1="160" y1="72" x2="180" y2="82"/>
+                  <circle cx="180" cy="82" r="4" fill="#EF4444" stroke="none"/>
+                  <circle cx="100" cy="58" r="3" fill="#06B6D4"/>
+                  <line x1="100" y1="58" x2="180" y2="82" stroke="#EF4444" stroke-dasharray="3 3" stroke-width="1"/>
+                </g>
+                <text x="110" y="96" font-size="9" fill="#9aa0a6" font-family="Calibri">foot lands far ahead of CoM</text>
+              </svg>
+              <div>
+                <div class="issue-title">Over-striding</div>
+                <div class="issue-body">Foot lands well ahead of center of mass — common with heel striking at speed. Acts as a braking force; elevates knee and tibial stress.
+                  <strong class="fix">Fix:</strong> Increase cadence 5–10%; aim to land under your hip.</div>
+              </div>
+            </div>
+
+            <div class="issue-row">
+              <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="110" cy="20" r="7" fill="#94A3B8"/>
+                  <line x1="110" y1="27" x2="110" y2="55"/>
+                  <line x1="110" y1="55" x2="95" y2="82"/>
+                  <line x1="110" y1="55" x2="135" y2="66"/>
+                  <circle cx="135" cy="66" r="3" fill="#F59E0B"/>
+                  <line x1="135" y1="66" x2="155" y2="82"/>
+                </g>
+                <text x="110" y="96" font-size="9" fill="#9aa0a6" font-family="Calibri">dropped contralateral hip</text>
+              </svg>
+              <div>
+                <div class="issue-title">Hip drop (Trendelenburg)</div>
+                <div class="issue-body">Opposite hip drops in stance instead of staying level — signals weak hip abductors. Common cause of ITB syndrome and knee pain.
+                  <strong class="fix">Fix:</strong> Side-planks, single-leg squats, banded clamshells.</div>
+              </div>
+            </div>
+
+            <div class="issue-row">
+              <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="110" cy="12" r="7" fill="#94A3B8"/>
+                  <line x1="110" y1="19" x2="110" y2="50"/>
+                  <line x1="110" y1="50" x2="90" y2="82"/>
+                  <line x1="110" y1="50" x2="130" y2="72"/>
+                  <line x1="130" y1="72" x2="145" y2="82"/>
+                  <path d="M60,12 L60,50" stroke="#EF4444" stroke-width="2"/>
+                  <path d="M55,15 L60,10 L65,15" stroke="#EF4444" stroke-width="2" fill="none"/>
+                  <path d="M55,47 L60,52 L65,47" stroke="#EF4444" stroke-width="2" fill="none"/>
+                </g>
+                <text x="110" y="96" font-size="9" fill="#9aa0a6" font-family="Calibri">excessive vertical bounce</text>
+              </svg>
+              <div>
+                <div class="issue-title">Excessive vertical oscillation</div>
+                <div class="issue-body">Bounce &gt; 10 cm wastes energy going up instead of forward. Usually pairs with low cadence and long ground contact.
+                  <strong class="fix">Fix:</strong> Increase cadence toward 175–180 spm; cue "run quiet, land light."</div>
+              </div>
+            </div>
+
+            <div class="issue-row">
+              <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                <path d="M60,82 Q75,78 90,82" stroke="#EF4444" stroke-width="2" fill="none"/>
+                <text x="75" y="72" font-size="9" fill="#EF4444" font-family="Calibri" text-anchor="middle">flat</text>
+                <path d="M130,82 Q145,70 160,82" stroke="#10B981" stroke-width="2" fill="none"/>
+                <text x="145" y="64" font-size="9" fill="#10B981" font-family="Calibri" text-anchor="middle">neutral</text>
+              </svg>
+              <div>
+                <div class="issue-title">Over-pronation</div>
+                <div class="issue-body">Arch collapses inward on landing. S2 sees disproportionate load vs S1/S3. Can contribute to plantar fasciitis, shin splints, bunions.
+                  <strong class="fix">Fix:</strong> Single-leg balance on a cushion, toe-yoga, stability shoes or orthotics if symptomatic.</div>
+              </div>
+            </div>
+
+            <div class="issue-row">
+              <svg viewBox="0 0 220 100" width="120" xmlns="http://www.w3.org/2000/svg">
+                <line x1="0" y1="82" x2="220" y2="82" stroke="#334050"/>
+                <g stroke="#94A3B8" stroke-width="1.8" fill="none" stroke-linecap="round">
+                  <circle cx="80" cy="22" r="7" fill="#94A3B8"/>
+                  <line x1="80" y1="29" x2="80" y2="60"/>
+                  <line x1="80" y1="60" x2="72" y2="82"/>
+                  <line x1="80" y1="60" x2="94" y2="82"/>
+                  <circle cx="72" cy="82" r="4" fill="#3B82F6"/>
+                  <text x="40" y="78" font-size="9" fill="#3B82F6" font-family="Calibri">L</text>
+                  <circle cx="160" cy="22" r="7" fill="#94A3B8"/>
+                  <line x1="160" y1="29" x2="160" y2="60"/>
+                  <line x1="160" y1="60" x2="150" y2="82"/>
+                  <line x1="160" y1="60" x2="175" y2="82"/>
+                  <circle cx="175" cy="82" r="4" fill="#EF4444"/>
+                  <text x="200" y="78" font-size="9" fill="#EF4444" font-family="Calibri">R</text>
+                </g>
+              </svg>
+              <div>
+                <div class="issue-title">Asymmetric strike / stance time</div>
+                <div class="issue-body">One foot lands differently — or stays on the ground noticeably longer — than the other. Commonly a compensation from past injury or leg-length difference.
+                  <strong class="fix">Fix:</strong> Unilateral strength work on the weaker side; if persistent, a physio / video gait analysis.</div>
+              </div>
+            </div>
+
+            <div class="muted" style="font-size:11px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+              These are pattern descriptions, not medical diagnoses. If pain persists, consult a sports physiotherapist or podiatrist.
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO · BIOMECH -->
+        <div class="info-pane" id="info-biomech">
+          <div class="card">
+            <div class="card-title"><h3>Cadence · steps per minute</h3></div>
+            <svg viewBox="0 0 360 80" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <line x1="20" y1="60" x2="340" y2="60" stroke="#334050"/>
+              <!-- Scale ticks -->
+              <g font-size="9" fill="#64748B" font-family="Calibri">
+                <text x="55" y="74" text-anchor="middle">80</text>
+                <text x="120" y="74" text-anchor="middle">120</text>
+                <text x="200" y="74" text-anchor="middle">160</text>
+                <text x="280" y="74" text-anchor="middle">200</text>
+              </g>
+              <!-- Zones -->
+              <rect x="20" y="40" width="100" height="20" fill="#9CA3AF" opacity="0.5" rx="2"/>
+              <text x="70" y="34" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="Calibri">stroll</text>
+              <rect x="120" y="40" width="80" height="20" fill="#10B981" opacity="0.5" rx="2"/>
+              <text x="160" y="34" text-anchor="middle" font-size="9" fill="#10B981" font-family="Calibri">brisk walk</text>
+              <rect x="200" y="40" width="80" height="20" fill="#3B82F6" opacity="0.6" rx="2"/>
+              <text x="240" y="34" text-anchor="middle" font-size="9" fill="#3B82F6" font-family="Calibri">running</text>
+              <rect x="280" y="40" width="50" height="20" fill="#EF4444" opacity="0.6" rx="2"/>
+              <text x="305" y="34" text-anchor="middle" font-size="9" fill="#EF4444" font-family="Calibri">sprint</text>
+            </svg>
+            <div class="info-body">
+              <p>Steps per minute combining both feet. Higher cadence distributes the same distance across more, smaller steps — which reduces impact per step and usually improves efficiency.</p>
+              <p><strong>Targets:</strong> casual stroll 85–95, brisk walk 115–125, recreational running 160–170, efficient running 175–185, elite / sprint 190+.</p>
+              <p><strong>How we measure it:</strong> from pressure-sensor step detection (no wrist or pod needed). One step = one foot landing.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Stride length</h3></div>
+            <svg viewBox="0 0 360 110" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <line x1="20" y1="85" x2="340" y2="85" stroke="#334050"/>
+              <!-- footprints: L R L showing stride = L to L -->
+              <ellipse cx="50" cy="85" rx="14" ry="6" fill="#3B82F6"/>
+              <text x="50" y="102" text-anchor="middle" font-size="10" fill="#3B82F6" font-family="Calibri">L</text>
+              <ellipse cx="170" cy="85" rx="14" ry="6" fill="#EF4444"/>
+              <text x="170" y="102" text-anchor="middle" font-size="10" fill="#EF4444" font-family="Calibri">R</text>
+              <ellipse cx="290" cy="85" rx="14" ry="6" fill="#3B82F6"/>
+              <text x="290" y="102" text-anchor="middle" font-size="10" fill="#3B82F6" font-family="Calibri">L</text>
+              <!-- stride arrow (L→L) -->
+              <line x1="50" y1="55" x2="290" y2="55" stroke="#06B6D4" stroke-width="1.5"/>
+              <line x1="50" y1="50" x2="50" y2="60" stroke="#06B6D4" stroke-width="1.5"/>
+              <line x1="290" y1="50" x2="290" y2="60" stroke="#06B6D4" stroke-width="1.5"/>
+              <text x="170" y="48" text-anchor="middle" font-size="10" fill="#06B6D4" font-family="Calibri">1 stride</text>
+              <!-- step -->
+              <line x1="60" y1="72" x2="160" y2="72" stroke="#94A3B8" stroke-dasharray="3 3"/>
+              <text x="110" y="68" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="Calibri">1 step</text>
+            </svg>
+            <div class="info-body">
+              <p>Stride = distance between two successive contacts of the <em>same</em> foot (L to L, or R to R). A step is half a stride (L to R). Stride length scales with height and speed.</p>
+              <p><strong>How it's computed here:</strong> GPS speed × time between same-foot strikes (detected from pressure). Typical stride: walking 1.2–1.6 m, recreational running 2.0–2.4 m, fast running 2.6–3.2 m.</p>
+              <p><strong>Over-striding</strong> is when stride grows faster than cadence as you speed up — foot lands ahead of you and brakes. The fix is to increase cadence rather than reach.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Vertical oscillation & vertical ratio</h3></div>
+            <svg viewBox="0 0 360 110" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <line x1="30" y1="85" x2="340" y2="85" stroke="#334050"/>
+              <!-- Sine curve of body CoM -->
+              <path d="M 30 85 Q 70 40 110 85 Q 150 40 190 85 Q 230 40 270 85 Q 310 40 340 85"
+                    fill="none" stroke="#A78BFA" stroke-width="2"/>
+              <!-- Amplitude markers -->
+              <line x1="30" y1="40" x2="30" y2="85" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <text x="10" y="65" font-size="10" fill="#F59E0B" font-family="Calibri">VO</text>
+              <text x="180" y="20" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="Calibri">Body's center-of-mass trajectory (side view)</text>
+              <!-- Stride dist marker -->
+              <line x1="110" y1="98" x2="190" y2="98" stroke="#06B6D4" stroke-width="1.5"/>
+              <text x="150" y="109" text-anchor="middle" font-size="9" fill="#06B6D4" font-family="Calibri">stride</text>
+            </svg>
+            <div class="info-body">
+              <p><strong>Vertical oscillation (VO)</strong> is the amount your center-of-mass moves up and down per step — the "bounce." Typical running: 6–10 cm. Lower is usually better; you want forward motion, not vertical.</p>
+              <p><strong>Vertical ratio (VR)</strong> = VO ÷ stride length × 100%. Normalizes bounce by how far you traveled. Elite runners sit under 6%; hobbyists commonly 7–9%; above 10% suggests mechanics to work on.</p>
+              <p><strong>Corrective cues:</strong> "run tall, run quiet." Quicker cadence automatically lowers bounce without conscious effort.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Ground contact time (GCT) & L/R balance</h3></div>
+            <svg viewBox="0 0 360 120" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <!-- Timeline -->
+              <line x1="20" y1="60" x2="340" y2="60" stroke="#334050"/>
+              <text x="20" y="75" font-size="9" fill="#64748B" font-family="Calibri">time →</text>
+              <!-- Left foot contact bar -->
+              <rect x="40" y="25" width="90" height="18" fill="#3B82F6" rx="3"/>
+              <text x="85" y="20" text-anchor="middle" font-size="10" fill="#3B82F6" font-family="Calibri">L contact</text>
+              <text x="85" y="38" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="600">240 ms</text>
+              <!-- Right foot contact bar -->
+              <rect x="200" y="25" width="95" height="18" fill="#EF4444" rx="3"/>
+              <text x="248" y="20" text-anchor="middle" font-size="10" fill="#EF4444" font-family="Calibri">R contact</text>
+              <text x="248" y="38" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="600">255 ms</text>
+              <!-- balance bar -->
+              <text x="20" y="100" font-size="9" fill="#9aa0a6" font-family="Calibri">GCT balance:</text>
+              <rect x="95" y="90" width="165" height="10" rx="5" fill="#1e293b"/>
+              <rect x="95" y="90" width="79" height="10" rx="5" fill="#3B82F6"/>
+              <rect x="174" y="90" width="86" height="10" rx="5" fill="#EF4444"/>
+              <text x="265" y="100" font-size="10" fill="#fff" font-family="Calibri">48 / 52</text>
+            </svg>
+            <div class="info-body">
+              <p><strong>GCT</strong> is the milliseconds each foot spends on the ground per step. Running: 200–280 ms is typical; elites often 180–200 ms. Walking: 500–700 ms. Shorter GCT = springier stride and less braking.</p>
+              <p><strong>GCT balance (L/R)</strong> is the percentage split between feet. Truly even would be 50/50. Most people have natural variation of 48/52 to 52/48. Differences &gt; 4% are worth investigating — usually strength imbalance, past injury, or leg-length discrepancy.</p>
+              <p><strong>How we measure it:</strong> each insole's pressure sum crosses a threshold on contact and again on lift-off. The time between those events is GCT for that foot.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO · HR -->
+        <div class="info-pane" id="info-hr">
+          <div class="card">
+            <div class="card-title"><h3>HR zones — what they mean</h3></div>
+            <svg viewBox="0 0 360 90" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <!-- 5-zone bar -->
+              <rect x="20" y="30" width="60" height="24" fill="#9CA3AF"/>
+              <rect x="80" y="30" width="60" height="24" fill="#3B82F6"/>
+              <rect x="140" y="30" width="60" height="24" fill="#10B981"/>
+              <rect x="200" y="30" width="60" height="24" fill="#F59E0B"/>
+              <rect x="260" y="30" width="80" height="24" fill="#EF4444"/>
+              <text x="50"  y="46" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="700">Z1</text>
+              <text x="110" y="46" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="700">Z2</text>
+              <text x="170" y="46" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="700">Z3</text>
+              <text x="230" y="46" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="700">Z4</text>
+              <text x="300" y="46" text-anchor="middle" font-size="10" fill="#fff" font-family="Calibri" font-weight="700">Z5</text>
+              <!-- percent scale -->
+              <text x="50"  y="72" text-anchor="middle" font-size="9" fill="#64748B" font-family="Calibri">50–60%</text>
+              <text x="110" y="72" text-anchor="middle" font-size="9" fill="#64748B" font-family="Calibri">60–70%</text>
+              <text x="170" y="72" text-anchor="middle" font-size="9" fill="#64748B" font-family="Calibri">70–80%</text>
+              <text x="230" y="72" text-anchor="middle" font-size="9" fill="#64748B" font-family="Calibri">80–90%</text>
+              <text x="300" y="72" text-anchor="middle" font-size="9" fill="#64748B" font-family="Calibri">90–100%</text>
+              <text x="180" y="22" text-anchor="middle" font-size="10" fill="#9aa0a6" font-family="Calibri">% of HRmax (or HR reserve)</text>
+            </svg>
+            <div class="info-body">
+              <p><strong>Z1 · Warm-up</strong> — very easy, "could talk in full sentences." Builds aerobic base, aids recovery.</p>
+              <p><strong>Z2 · Easy / base</strong> — conversational pace, foundation of endurance. Most training time should live here.</p>
+              <p><strong>Z3 · Aerobic / tempo</strong> — comfortably hard, "marathon pace" territory. Builds efficiency but with higher recovery cost.</p>
+              <p><strong>Z4 · Threshold</strong> — hard but sustainable for 20–60 min. Lactate starts to accumulate. Used for threshold workouts.</p>
+              <p><strong>Z5 · VO₂max / max</strong> — all-out, 2–8 min intervals. Builds peak aerobic capacity.</p>
+              <p><strong>7-zone</strong> schemes split the top (Z4+) into Sub-threshold, VO₂max, Anaerobic, and Neuromuscular — useful if you train seriously at intensity.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>%HRmax vs Karvonen (HR reserve)</h3></div>
+            <div class="info-body">
+              <p><strong>%HRmax</strong> (simple method): zone bands = fraction of your maximum heart rate. Works fine for most people.</p>
+              <p><strong>Karvonen method</strong> (more accurate): uses <em>heart-rate reserve</em> — the range between resting and maximum HR. Zone bands are calculated as fractions of HRR added to your resting HR:</p>
+              <p style="background:#0e1114;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:Consolas,monospace;font-size:12px;text-align:center">
+                zone threshold = HR<sub>rest</sub> + (HR<sub>max</sub> − HR<sub>rest</sub>) × fraction
+              </p>
+              <p>Why it matters: two people with the same HRmax but different resting HR have very different cardiac reserve. A fit athlete with rest HR 50 works much harder to reach 150 bpm than someone with rest HR 75. Karvonen accounts for that.</p>
+              <p>Set both <strong>Max HR</strong> and <strong>Resting HR</strong> in your Profile to unlock Karvonen; otherwise the app defaults to %HRmax.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>HR drift</h3></div>
+            <svg viewBox="0 0 360 100" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <line x1="20" y1="82" x2="340" y2="82" stroke="#334050"/>
+              <text x="20" y="94" font-size="9" fill="#64748B" font-family="Calibri">time →</text>
+              <line x1="20" y1="20" x2="20" y2="82" stroke="#334050"/>
+              <text x="8" y="55" font-size="9" fill="#64748B" font-family="Calibri" transform="rotate(-90 8 55)">bpm</text>
+              <!-- drifting HR -->
+              <path d="M 30 65 Q 80 62 140 55 T 250 45 T 340 40" fill="none" stroke="#F43F5E" stroke-width="2"/>
+              <!-- pace steady -->
+              <line x1="30" y1="75" x2="340" y2="75" stroke="#06B6D4" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <text x="180" y="70" text-anchor="middle" font-size="9" fill="#06B6D4" font-family="Calibri">pace (steady)</text>
+              <text x="290" y="35" font-size="9" fill="#F43F5E" font-family="Calibri">HR drifting up</text>
+            </svg>
+            <div class="info-body">
+              <p>If your pace stays constant but HR slowly climbs across a session, that's <strong>cardiovascular drift</strong>. Normal causes: dehydration, heat accumulation, fatigue. Large drift (&gt; 5–10 bpm over 30 min) suggests fueling or pacing issues.</p>
+              <p>The HR sub-tab shows drift as bpm/minute, calculated from the average HR in the first half of the session vs. the second half.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Time-in-zone & polarized training</h3></div>
+            <div class="info-body">
+              <p>Tracking how much session time lives in each zone reveals your training pattern. Most elite endurance athletes follow <strong>80/20</strong> — about 80% of time in easy Z1–Z2, 20% in hard Z4–Z5, with little in between (the "moderate" trap).</p>
+              <p>Everyday runners often flip this: too much Z3 (tempo), leading to cumulative fatigue without the peak-stress benefits of real intervals or the recovery benefits of truly easy runs.</p>
+              <p>Use the TIZ bar on the Biomech screen and the Trend card here to check whether your week looks polarized or stuck in the middle.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO · PRESSURE -->
+        <div class="info-pane" id="info-pressure">
+          <div class="card">
+            <div class="card-title"><h3>The three pressure zones</h3></div>
+            <svg viewBox="0 0 260 240" width="160" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 10px">
+              <path d="M130 10 C175 10 200 45 200 90 C200 125 190 155 185 180 C180 205 180 225 165 235 C155 240 105 240 95 235 C80 225 80 205 75 180 C70 155 60 125 60 90 C60 45 85 10 130 10 Z"
+                    fill="#1a1f25" stroke="#2a2f35" stroke-width="1.5"/>
+              <circle cx="130" cy="50" r="26" fill="#EF4444"/>
+              <text x="130" y="55" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Calibri">S3</text>
+              <text x="130" y="30" text-anchor="middle" font-size="11" font-weight="600" fill="#EF4444" font-family="Calibri">Forefoot</text>
+              <circle cx="130" cy="120" r="20" fill="#F59E0B"/>
+              <text x="130" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Calibri">S2</text>
+              <text x="170" y="124" font-size="11" font-weight="600" fill="#F59E0B" font-family="Calibri">Midfoot</text>
+              <circle cx="130" cy="200" r="26" fill="#3B82F6"/>
+              <text x="130" y="205" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Calibri">S1</text>
+              <text x="170" y="204" font-size="11" font-weight="600" fill="#3B82F6" font-family="Calibri">Heel</text>
+            </svg>
+            <div class="info-body">
+              <p>Each insole has three pressure sensors. With 6 total (3 per foot), we can map which part of the foot is bearing load through every step of every session.</p>
+              <p><strong>S1 · Heel</strong> — first contact in walking and heel-striking running. Big cushioning zone.</p>
+              <p><strong>S2 · Midfoot</strong> — carries load during midstance; reflects pronation/supination tendencies.</p>
+              <p><strong>S3 · Forefoot</strong> — push-off zone; carries propulsion load. Activated last.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Weight distribution & what healthy looks like</h3></div>
+            <div class="info-body">
+              <p><strong>Walking</strong> — roughly 30% heel / 25% midfoot / 45% forefoot over a session. Load rolls front-to-back-to-front smoothly.</p>
+              <p><strong>Running</strong> — depends on strike pattern (below). Expect 15–25% heel, 25–35% midfoot, 45–60% forefoot.</p>
+              <p><strong>Worth attention:</strong></p>
+              <p>Heel &gt; 50% of session — consider cadence work and foot-strike drills (especially if running).</p>
+              <p>Midfoot &lt; 18% — "skipping" pattern; midfoot isn't engaging through midstance.</p>
+              <p>Forefoot &gt; 55% — may overload calves and Achilles; stretch and add eccentric heel drops.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Left / Right balance</h3></div>
+            <div class="info-body">
+              <p>The L/R split shows what percentage of total load each foot carries over a session. Target is close to 50/50, but asymmetry up to ~4% is normal and individual.</p>
+              <p><strong>4–8%</strong> — slight lean; normal for most people.</p>
+              <p><strong>8–15%</strong> — mild asymmetry; worth addressing with unilateral strength work.</p>
+              <p><strong>&gt; 15%</strong> — significant; raises injury risk. If persistent over weeks, a physio or sports-med evaluation is a good idea.</p>
+              <p>Causes are usually strength imbalance, old injury compensation, leg-length difference, or stiffness on one side.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Strike pattern</h3></div>
+            <svg viewBox="0 0 360 100" width="100%" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:10px;background:#0e1114;border:1px solid var(--border);border-radius:8px">
+              <line x1="10" y1="82" x2="350" y2="82" stroke="#334050"/>
+              <!-- Three feet icons -->
+              <g transform="translate(30,30)">
+                <ellipse cx="20" cy="40" rx="14" ry="30" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="20" cy="60" r="6" fill="#3B82F6"/>
+                <text x="20" y="88" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="Calibri">Heel striker</text>
+              </g>
+              <g transform="translate(150,30)">
+                <ellipse cx="20" cy="40" rx="14" ry="30" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="20" cy="40" r="6" fill="#F59E0B"/>
+                <text x="20" y="88" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="Calibri">Midfoot striker</text>
+              </g>
+              <g transform="translate(280,30)">
+                <ellipse cx="20" cy="40" rx="14" ry="30" fill="#1a1f25" stroke="#2a2f35"/>
+                <circle cx="20" cy="20" r="6" fill="#EF4444"/>
+                <text x="20" y="88" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="Calibri">Forefoot striker</text>
+              </g>
+            </svg>
+            <div class="info-body">
+              <p><strong>Heel strikers</strong> land S1 first. Common in walking and easy-pace running. At faster paces, heel striking can be a braking force if combined with over-striding.</p>
+              <p><strong>Midfoot strikers</strong> land S2 first with S1 and S3 closely behind. Generally considered most efficient for distance running.</p>
+              <p><strong>Forefoot strikers</strong> land S3 first. Common at faster paces and in sprinters. Loads calves and Achilles more — more calf/Achilles strength work needed.</p>
+              <p>No strike pattern is "wrong" in isolation. What matters is whether it suits your pace, history, and has you landing <em>under</em> your body, not ahead of it.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -3231,15 +3759,35 @@
     renderTrends();
   });
 
-  // Gait "Learn" sub-tabs (educational)
-  document.querySelectorAll('#gaitLearnTabs button').forEach(b => {
+  // Info sub-tabs (Gait / Biomech / HR / Pressure)
+  document.querySelectorAll('#infoTabs button').forEach(b => {
     b.addEventListener('click', () => {
-      document.querySelectorAll('#gaitLearnTabs button').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('#infoTabs button').forEach(x => x.classList.remove('active'));
       b.classList.add('active');
-      document.querySelectorAll('.learn-pane').forEach(p => p.classList.remove('active'));
-      document.getElementById('learn-'+b.dataset.learn).classList.add('active');
+      document.querySelectorAll('.info-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('info-'+b.dataset.info).classList.add('active');
     });
   });
+
+  // "Open Info →" shortcut from Gait sub-tab → jumps to Info sub-tab
+  const goInfoBtn = document.getElementById('goToInfoBtn');
+  if (goInfoBtn){
+    goInfoBtn.addEventListener('click', () => {
+      document.querySelectorAll('#analyzeTabs button').forEach(x => x.classList.remove('active'));
+      const infoBtn = document.querySelector('#analyzeTabs button[data-sub="info"]');
+      if (infoBtn) infoBtn.classList.add('active');
+      document.querySelectorAll('.subpane').forEach(p => p.classList.remove('active'));
+      const infoPane = document.getElementById('sub-info');
+      if (infoPane) infoPane.classList.add('active');
+      // Default to Gait section
+      document.querySelectorAll('#infoTabs button').forEach(x => x.classList.remove('active'));
+      const gaitInfo = document.querySelector('#infoTabs button[data-info="gait"]');
+      if (gaitInfo) gaitInfo.classList.add('active');
+      document.querySelectorAll('.info-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('info-gait').classList.add('active');
+      document.getElementById('appMain').scrollTop = 0;
+    });
+  }
 
   // Activity view toggle (Time / Distance)
   document.querySelectorAll('#viewToggle button').forEach(b => {
