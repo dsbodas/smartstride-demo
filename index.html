@@ -341,6 +341,12 @@
 
     <!-- ================== ACTIVITY / GPS ================== -->
     <section class="screen" id="scr-activity">
+      <!-- Time / Distance X-axis toggle -->
+      <div class="subtabs" id="viewToggle" style="margin-bottom:12px">
+        <button class="active" data-view="time">Time</button>
+        <button data-view="distance">Distance</button>
+      </div>
+
       <div class="metrics-row">
         <div class="metric">
           <div class="label">Distance</div>
@@ -355,8 +361,16 @@
           <div class="value"><span id="gpsPace">--:--</span><small>/km</small></div>
         </div>
         <div class="metric">
+          <div class="label">Grade-adj pace</div>
+          <div class="value"><span id="gpsGap">--:--</span><small>/km</small></div>
+        </div>
+        <div class="metric">
           <div class="label">Speed</div>
           <div class="value"><span id="gpsSpeed">0.0</span><small>km/h</small></div>
+        </div>
+        <div class="metric">
+          <div class="label">Lap avg pace</div>
+          <div class="value"><span id="gpsLapPace">--:--</span><small>/km</small></div>
         </div>
       </div>
 
@@ -366,22 +380,22 @@
       </div>
 
       <div class="card">
-        <div class="card-title"><h3>Distance vs Time</h3><span class="tag">km · min</span></div>
-        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartDT" preserveAspectRatio="none"></svg></div>
+        <div class="card-title"><h3 id="paceTitle">Pace vs time</h3><span class="tag">min/km</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartPace" preserveAspectRatio="none"></svg></div>
       </div>
 
       <div class="card">
-        <div class="card-title"><h3>Distance vs Pressure</h3><span class="tag">kPa along route</span></div>
-        <div class="chart-wrap"><svg viewBox="0 0 360 160" id="chartDP" preserveAspectRatio="none"></svg></div>
+        <div class="card-title"><h3 id="hrTitle">Heart rate vs time</h3><span class="tag">bpm</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartHRdist" preserveAspectRatio="none"></svg></div>
         <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
-          <span>avg <strong id="dpAvg" style="color:var(--text)">0</strong> kPa</span>
-          <span>peak <strong id="dpPeak" style="color:var(--text)">0</strong> kPa</span>
-          <span>at <strong id="dpPeakAt" style="color:var(--text)">0.00</strong> km</span>
+          <span>cur <strong id="hrCur2" style="color:var(--text)">0</strong></span>
+          <span>avg <strong id="hrAvg2" style="color:var(--text)">0</strong></span>
+          <span>max <strong id="hrMax2" style="color:var(--text)">0</strong></span>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title"><h3>Altitude profile</h3><span class="tag">m · over distance</span></div>
+        <div class="card-title"><h3 id="altTitle">Elevation profile</h3><span class="tag">m</span></div>
         <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartAlt" preserveAspectRatio="none"></svg></div>
         <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
           <span>gain <strong id="altGain" style="color:var(--text)">0</strong> m</span>
@@ -391,12 +405,31 @@
       </div>
 
       <div class="card">
-        <div class="card-title"><h3>Heart rate vs distance</h3><span class="tag">bpm</span></div>
-        <div class="chart-wrap"><svg viewBox="0 0 360 140" id="chartHRdist" preserveAspectRatio="none"></svg></div>
+        <div class="card-title"><h3 id="dpTitle">Pressure vs distance</h3><span class="tag">kPa</span></div>
+        <div class="chart-wrap"><svg viewBox="0 0 360 160" id="chartDP" preserveAspectRatio="none"></svg></div>
         <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
-          <span>cur <strong id="hrCur2" style="color:var(--text)">0</strong></span>
-          <span>avg <strong id="hrAvg2" style="color:var(--text)">0</strong></span>
-          <span>max <strong id="hrMax2" style="color:var(--text)">0</strong></span>
+          <span>avg <strong id="dpAvg" style="color:var(--text)">0</strong> kPa</span>
+          <span>peak <strong id="dpPeak" style="color:var(--text)">0</strong> kPa</span>
+          <span>at <strong id="dpPeakAt" style="color:var(--text)">0.00</strong></span>
+        </div>
+      </div>
+
+      <!-- Lap breakdown -->
+      <div class="card">
+        <div class="card-title"><h3>Laps</h3><span class="tag">every 1 km</span></div>
+        <div id="lapTable" style="font-size:12px">
+          <div class="row-between" style="padding:6px 4px;border-bottom:1px solid var(--border);color:var(--text-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px">
+            <span style="flex:0 0 28px">#</span>
+            <span style="flex:1">Time</span>
+            <span style="flex:1">Pace</span>
+            <span style="flex:1">GAP</span>
+            <span style="flex:0 0 44px;text-align:right">HR</span>
+            <span style="flex:0 0 52px;text-align:right">Peak</span>
+          </div>
+          <div id="lapRows"></div>
+          <div id="lapCur" class="row-between" style="padding:7px 4px;color:var(--text-2);font-size:11.5px;font-style:italic">
+            <span>…current lap builds here as you move</span>
+          </div>
         </div>
       </div>
     </section>
@@ -405,14 +438,29 @@
     <section class="screen" id="scr-biomech">
       <div class="metrics-row">
         <div class="metric"><div class="label">Heart rate</div><div class="value"><span id="hrCur">0</span><small>bpm</small></div></div>
+        <div class="metric"><div class="label">Cadence</div><div class="value"><span id="bmCadence">0</span><small>spm</small></div></div>
+        <div class="metric"><div class="label">Stride length</div><div class="value"><span id="bmStride">0.00</span><small>m</small></div></div>
         <div class="metric"><div class="label">Vertical osc.</div><div class="value"><span id="voCur">0.0</span><small>cm</small></div></div>
+        <div class="metric"><div class="label">Vertical ratio</div><div class="value"><span id="bmVR">0.0</span><small>%</small></div></div>
         <div class="metric"><div class="label">Ground contact</div><div class="value"><span id="gctCur">0</span><small>ms</small></div></div>
-        <div class="metric"><div class="label">Speed (accel)</div><div class="value"><span id="aSpeed">0.0</span><small>km/h</small></div></div>
       </div>
 
       <div class="card">
         <div class="card-title"><h3>Heart rate (live)</h3><span class="tag"><span id="hrZone">—</span></span></div>
         <div class="chart-wrap"><svg viewBox="0 0 360 120" id="chartHR" preserveAspectRatio="none"></svg></div>
+      </div>
+
+      <!-- Time in HR Zone -->
+      <div class="card">
+        <div class="card-title"><h3>Time in heart-rate zone</h3><span class="tag" id="tizTotal">0:00</span></div>
+        <div id="tizBar" style="display:flex;width:100%;height:14px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin-bottom:10px">
+          <div id="tizZ1" style="background:#9CA3AF"></div>
+          <div id="tizZ2" style="background:#3B82F6"></div>
+          <div id="tizZ3" style="background:#10B981"></div>
+          <div id="tizZ4" style="background:#F59E0B"></div>
+          <div id="tizZ5" style="background:#EF4444"></div>
+        </div>
+        <div id="tizRows" style="font-size:11.5px"></div>
       </div>
 
       <div class="card">
@@ -421,11 +469,23 @@
       </div>
 
       <div class="card">
-        <div class="card-title"><h3>Ground contact time</h3><span class="tag">per step</span></div>
+        <div class="card-title"><h3>Ground contact time</h3><span class="tag">per step · from pressure</span></div>
         <div class="chart-wrap"><svg viewBox="0 0 360 120" id="chartGCT" preserveAspectRatio="none"></svg></div>
         <div class="row-between mt8" style="font-size:11px;color:var(--text-2)">
           <span>avg <strong id="gctAvg" style="color:var(--text)">0</strong> ms</span>
-          <span>L/R <strong id="gctLR" style="color:var(--text)">50/50</strong></span>
+          <span>L <strong id="gctAvgL" style="color:var(--s1)">0</strong> ms</span>
+          <span>R <strong id="gctAvgR" style="color:var(--s3)">0</strong> ms</span>
+        </div>
+        <!-- L/R balance bar -->
+        <div style="margin-top:10px">
+          <div class="row-between" style="font-size:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">
+            <span>GCT balance L/R</span>
+            <span><strong id="gctLR" style="color:var(--text)">50/50</strong></span>
+          </div>
+          <div style="display:flex;width:100%;height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden">
+            <div id="gctBarL" style="background:var(--s1);transition:width .4s ease"></div>
+            <div id="gctBarR" style="background:var(--s3);transition:width .4s ease"></div>
+          </div>
         </div>
       </div>
 
@@ -699,8 +759,27 @@
     altGain: 0, altLoss: 0, altMax: 0,
     // Per-GPS-sample joint series for cross-maps: [{t, dist, speed, alt, hr, vo, sum}]
     joinBuf: [],
-    // L/R balance (right foot simulated)
-    lrL: 50, lrR: 50, lrLkpa:0, lrRkpa:0
+    // L/R balance
+    lrL: 50, lrR: 50, lrLkpa:0, lrRkpa:0,
+    // --- Activity view toggle ---
+    activityView: 'time',              // 'time' | 'distance'
+    // --- Pace / GAP / laps ---
+    pace: 0,                           // sec/km (inst.)
+    gap:  0,                           // grade-adjusted pace sec/km
+    lapIndex: 0,
+    lapDistanceM: 1000,                // 1-km laps
+    laps: [],                          // [{n,durSec,distM,pace,gap,avgHR,peakLoad,elevGain}]
+    lapAgg: {startT:0, distStart:0, hrSum:0, hrN:0, peakLoad:0, elevStart:0, elevLast:0, elevGain:0, timeAtGrade:[]},
+    // --- HR zones ---
+    hrMaxAssumed: 190,                                   // user HR max (assumed for zones)
+    timeInZone: {Z1:0, Z2:0, Z3:0, Z4:0, Z5:0},          // seconds
+    lastZoneT: 0,                                        // last tick time for TIZ accumulation
+    // --- Derived biomech (combined L+R) ---
+    cadence: 0,                        // spm
+    cadenceHistory: [],                // per-step running
+    strideLen: 0,                      // meters (one stride = 2 steps)
+    strideLenHistory: [],
+    verticalRatio: 0                   // % (VO_cm / stride_cm * 100)
   };
 
   // ---------- SIMULATOR ----------
@@ -789,13 +868,23 @@
     return Math.max(45, Math.min(205, next));
   }
   function hrZone(bpm){
-    // zones as % of HRmax (assume 190)
-    const p = bpm/190;
-    if (p < 0.6) return {z:'Z1 · warm', cls:'good'};
-    if (p < 0.7) return {z:'Z2 · easy', cls:'good'};
-    if (p < 0.8) return {z:'Z3 · aerobic', cls:'warn'};
-    if (p < 0.9) return {z:'Z4 · threshold', cls:'warn'};
-    return {z:'Z5 · max', cls:'warn'};
+    // zones as % of HRmax (user-assumed)
+    const p = bpm/state.hrMaxAssumed;
+    if (p < 0.6) return {z:'Z1 · warm',      key:'Z1', color:'#9CA3AF'};
+    if (p < 0.7) return {z:'Z2 · easy',      key:'Z2', color:'#3B82F6'};
+    if (p < 0.8) return {z:'Z3 · aerobic',   key:'Z3', color:'#10B981'};
+    if (p < 0.9) return {z:'Z4 · threshold', key:'Z4', color:'#F59E0B'};
+    return                 {z:'Z5 · max',    key:'Z5', color:'#EF4444'};
+  }
+
+  // Grade-adjusted pace (Minetti-style approximation).
+  // Returns sec/km, given flat pace (sec/km) and grade in % (rise/run × 100).
+  // Penalty: ~+12 sec/km per 1% up-grade (cap 6%); credit: ~-6 sec/km per 1% down-grade (cap 10%).
+  function gradeAdjustPace(paceSecPerKm, gradePct){
+    if (!isFinite(paceSecPerKm) || paceSecPerKm <= 0) return paceSecPerKm;
+    const g = Math.max(-10, Math.min(10, gradePct));
+    const k = g >= 0 ? 12 : 6;
+    return Math.max(90, paceSecPerKm + k * g);
   }
 
   // ---------- TIMERS ----------
@@ -857,6 +946,16 @@
     state.hrBuf.push({t: now, bpm});
     if (state.hrBuf.length > BUF_MAX_P*2) state.hrBuf.shift();
 
+    // Time-in-Zone accumulation
+    if (state.lastZoneT > 0){
+      const dt = (now - state.lastZoneT)/1000;
+      if (dt > 0 && dt < 1){
+        const z = hrZone(bpm).key;
+        state.timeInZone[z] = (state.timeInZone[z] || 0) + dt;
+      }
+    }
+    state.lastZoneT = now;
+
     // Step detection per foot: rising/falling edge of that foot's collective
     detectStepForFoot(sample, 'L');
     detectStepForFoot(sample, 'R');
@@ -894,6 +993,19 @@
         // per-foot stride rate; overall cadence = twice the slower foot's rate (both feet)
         const rate = 60/dt;
         state.cadence = Math.round(rate*2);
+        // Stride length (one stride = same-foot to same-foot): speed × dt.
+        const spd = state.gBuf.length ? state.gBuf[state.gBuf.length-1].speed : 0;
+        if (spd > 0.2){
+          const stride = spd * dt;
+          state.strideLen = stride;
+          state.strideLenHistory.push(stride);
+          if (state.strideLenHistory.length > 30) state.strideLenHistory.shift();
+          // Vertical ratio: VO in cm / stride in cm × 100  (cm -> cm, stride in m → cm)
+          const strideCm = stride * 100;
+          if (strideCm > 10 && state.voAvg > 0){
+            state.verticalRatio = (state.voAvg / strideCm) * 100;
+          }
+        }
       }
       state.lastStepT[foot] = curr.t;
 
@@ -921,16 +1033,69 @@
     const now = Date.now();
     const g = simulateGPS(now - state.t0);
     const prev = state.gBuf.length ? state.gBuf[state.gBuf.length-1] : null;
-    state.gBuf.push({t: now, ...g});
+
+    // Pace + grade + GAP
+    const spd = g.speed;                                 // m/s
+    const pace = spd > 0.3 ? 1000 / spd : 0;             // sec/km
+    let gradePct = 0;
+    if (prev){
+      const dd = Math.max(0.001, g.dist - prev.dist);    // meters
+      const dh = g.alt - prev.alt;                       // meters
+      gradePct = (dh / dd) * 100;
+    }
+    const gap = gradeAdjustPace(pace, gradePct);
+    state.pace = pace; state.gap = gap;
+
+    state.gBuf.push({t: now, ...g, pace, gap, grade: gradePct});
     if (state.gBuf.length > SESSION_MAX*2) state.gBuf.shift();
 
-    // Altitude gain/loss accumulation
+    // Altitude gain/loss accumulation (session-wide + lap-wide)
     if (prev){
       const d = g.alt - prev.alt;
       if (d > 0) state.altGain += d;
       else       state.altLoss += -d;
+      if (d > 0) state.lapAgg.elevGain += d;
     }
     state.altMax = Math.max(state.altMax, g.alt);
+    state.lapAgg.elevLast = g.alt;
+
+    // Lap aggregation running totals
+    state.lapAgg.hrSum += state.hrCur;
+    state.lapAgg.hrN  += 1;
+    state.lapAgg.peakLoad = Math.max(state.lapAgg.peakLoad, state.cur.sum);
+
+    // Lap boundary: crossed a multiple of lapDistanceM
+    const crossed = Math.floor(g.dist / state.lapDistanceM);
+    if (crossed > state.lapIndex){
+      // finalize this lap
+      const durSec = (now - (state.lapAgg.startT || state.t0)) / 1000;
+      const distM  = g.dist - state.lapAgg.distStart;
+      const lapSpd = distM / Math.max(1, durSec);
+      const lapPace = lapSpd > 0 ? 1000 / lapSpd : 0;
+      const avgGrade = state.lapAgg.elevGain / Math.max(1, distM) * 100;
+      const lapGap = gradeAdjustPace(lapPace, avgGrade);
+      const avgHR  = state.lapAgg.hrN ? Math.round(state.lapAgg.hrSum/state.lapAgg.hrN) : 0;
+      state.laps.push({
+        n:       state.lapIndex + 1,
+        durSec,  distM,
+        pace:    lapPace,
+        gap:     lapGap,
+        avgHR,
+        peakLoad: Math.round(state.lapAgg.peakLoad),
+        elevGain: state.lapAgg.elevGain,
+      });
+      state.lapIndex = crossed;
+      // reset lap aggregator
+      state.lapAgg = {
+        startT: now, distStart: g.dist, hrSum:0, hrN:0, peakLoad:0,
+        elevStart: g.alt, elevLast: g.alt, elevGain: 0
+      };
+    }
+    if (state.lapAgg.startT === 0){  // first tick
+      state.lapAgg.startT = now;
+      state.lapAgg.distStart = 0;
+      state.lapAgg.elevStart = g.alt;
+    }
 
     // Build joint cross-map row (aligned values at this GPS instant)
     state.joinBuf.push({
@@ -940,11 +1105,11 @@
       alt: g.alt,
       hr: state.hrCur,
       vo: state.voAvg || state.voCur,
-      sum: state.cur.sum
+      sum: state.cur.sum,
+      pace: pace,
+      gap: gap
     });
     if (state.joinBuf.length > 3600) state.joinBuf.shift();
-
-    // L/R balance from real per-foot session averages (updated in render)
   }
 
   // ---------- RENDER LOOP (40ms) ----------
@@ -1142,13 +1307,163 @@
     $('gpsTime').textContent = fmtMMSS(state.elapsed);
     const speed = last ? last.speed : 0;
     $('gpsSpeed').textContent = (speed*3.6).toFixed(1);
-    $('gpsPace').textContent  = fmtPace(speed>0 ? 1000/speed : Infinity);
+    $('gpsPace').textContent  = fmtPace(state.pace);
+    $('gpsGap').textContent   = fmtPace(state.gap);
+
+    // Current-lap running pace (from lap aggregator)
+    const lapDur = state.lapAgg.startT ? (Date.now() - state.lapAgg.startT)/1000 : 0;
+    const lapDist = last ? (last.dist - state.lapAgg.distStart) : 0;
+    const lapSpd = lapDist > 5 ? lapDist / Math.max(1, lapDur) : 0;
+    $('gpsLapPace').textContent = fmtPace(lapSpd > 0 ? 1000/lapSpd : Infinity);
+
+    // Titles swap between time / distance
+    const v = state.activityView;
+    $('paceTitle').textContent = v === 'time' ? 'Pace vs time'   : 'Pace vs distance';
+    $('hrTitle').textContent   = v === 'time' ? 'Heart rate vs time' : 'Heart rate vs distance';
+    $('altTitle').textContent  = v === 'time' ? 'Elevation vs time'  : 'Elevation vs distance';
+    $('dpTitle').textContent   = v === 'time' ? 'Pressure vs time'   : 'Pressure vs distance';
 
     renderRoute();
-    renderDistanceTime();
-    renderDistancePressure();
-    renderAltitude();
-    renderHRvsDistance();
+    renderActivityChart('chartPace', 'pace', '#06B6D4', {kind:'pace'});
+    renderActivityChart('chartHRdist', 'hr',  '#F43F5E', {ymin:50, ymax:200, label:'bpm'});
+    renderActivityChart('chartAlt',    'alt', '#A78BFA', {kind:'elev', label:'m'});
+    renderActivityChart('chartDP',     'sum', '#27E8A7', {label:'kPa'});
+    updateDPStats();
+
+    // HR stats
+    $('hrCur2').textContent = Math.round(state.hrCur);
+    $('hrAvg2').textContent = state.hrN ? Math.round(state.hrSum/state.hrN) : 0;
+    $('hrMax2').textContent = Math.round(state.hrMax);
+
+    renderLapTable();
+  }
+
+  // Generic time- or distance-axis chart over joinBuf (or gBuf for elev).
+  function renderActivityChart(svgId, yKey, color, opts={}){
+    const svg = $(svgId); if (!svg) return;
+    const vb = svg.viewBox.baseVal, W = vb.width, H = vb.height;
+    const pad = {t:10, r:12, b:18, l:36};
+    const plotW = W-pad.l-pad.r, plotH = H-pad.t-pad.b;
+    const pts = state.joinBuf;
+    if (pts.length < 2){ svg.innerHTML=''; return; }
+
+    const view = state.activityView;
+    const useTime = view === 'time';
+    const xMin = 0;
+    const xMax = useTime
+      ? Math.max(60, (pts[pts.length-1].t - state.t0)/1000)                        // seconds
+      : Math.max(0.1, pts[pts.length-1].dist/1000);                                 // km
+    const xOf = (p) => useTime ? (p.t - state.t0)/1000 : p.dist/1000;
+
+    // y-axis bounds
+    let ymin, ymax;
+    if (opts.kind === 'pace'){
+      // pace: lower is faster; clamp to 3:00 - 12:00 min/km
+      ymin = 180; ymax = 720;
+      // Adjust to observed bounds if tighter
+      let obs = pts.map(p => p.pace).filter(v => v>0 && v<900);
+      if (obs.length){
+        const lo = Math.min(...obs), hi = Math.max(...obs);
+        ymin = Math.max(120, Math.floor((lo-30)/30)*30);
+        ymax = Math.min(900, Math.ceil((hi+30)/30)*30);
+      }
+    } else if (opts.kind === 'elev'){
+      let lo = Infinity, hi = -Infinity;
+      for (const p of pts){ if (p.alt<lo)lo=p.alt; if (p.alt>hi)hi=p.alt; }
+      if (hi-lo < 10){ const c=(hi+lo)/2; lo=c-5; hi=c+5; }
+      ymin = lo; ymax = hi;
+    } else {
+      ymin = opts.ymin ?? 0; ymax = opts.ymax ?? Math.max(...pts.map(p => p[yKey] || 0)) * 1.1 + 10;
+    }
+
+    let html = '';
+    const yS = 3;
+    for (let i=0;i<=yS;i++){
+      const y = pad.t + plotH*i/yS;
+      const v = ymax - (ymax-ymin)*i/yS;
+      html += `<line class="grid-line" x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}"/>`;
+      const lbl = opts.kind === 'pace' ? fmtPace(v) : Math.round(v);
+      html += `<text class="y-axis-label" x="2" y="${y+3}">${lbl}</text>`;
+    }
+    html += `<line class="axis-line" x1="${pad.l}" y1="${H-pad.b}" x2="${W-pad.r}" y2="${H-pad.b}"/>`;
+    if (opts.label) html += `<text class="y-axis-label" x="2" y="${pad.t-1}" style="font-size:9px">${opts.label}</text>`;
+    // X-axis markers
+    const xLbl = useTime ? `${Math.round(xMax)}s` : `${xMax.toFixed(2)} km`;
+    html += `<text class="x-axis-label" x="${W-pad.r}" y="${H-4}" text-anchor="end">${xLbl}</text>`;
+    html += `<text class="x-axis-label" x="${pad.l}" y="${H-4}">0${useTime?'s':' km'}</text>`;
+
+    // Build path
+    let d='', area='';
+    let started=false;
+    for (let i=0;i<pts.length;i++){
+      const p = pts[i];
+      const xv = xOf(p);
+      const yv = p[yKey];
+      if (yv === undefined || yv === null) continue;
+      if (opts.kind === 'pace' && !(yv > 0)) continue;
+      const x = pad.l + ((xv-xMin)/(xMax-xMin))*plotW;
+      const yy = pad.t + (1 - (yv-ymin)/(ymax-ymin))*plotH;
+      d += (started?' L ':'M ') + x.toFixed(1)+' '+yy.toFixed(1);
+      if (!started) area = `M ${x.toFixed(1)} ${H-pad.b} L ${x.toFixed(1)} ${yy.toFixed(1)}`;
+      else          area += ` L ${x.toFixed(1)} ${yy.toFixed(1)}`;
+      started = true;
+    }
+    if (started){
+      area += ` L ${(pad.l+plotW).toFixed(1)} ${H-pad.b} Z`;
+      html += `<path d="${area}" fill="${color}" opacity=".14"/>`;
+      html += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>`;
+    }
+    svg.innerHTML = html;
+  }
+
+  function updateDPStats(){
+    // Re-used DP stats (avg/peak/peakAt)
+    const pts = state.joinBuf; if (pts.length < 2) return;
+    let sum=0, peak=0, peakD=0, peakT=0;
+    for (const p of pts){
+      sum += p.sum;
+      if (p.sum > peak){ peak=p.sum; peakD=p.dist/1000; peakT=(p.t-state.t0)/1000; }
+    }
+    $('dpAvg').textContent = Math.round(sum/pts.length);
+    $('dpPeak').textContent = Math.round(peak);
+    $('dpPeakAt').textContent = state.activityView==='time'
+      ? `${Math.round(peakT)}s`
+      : `${peakD.toFixed(2)} km`;
+  }
+
+  function renderLapTable(){
+    const host = $('lapRows'); if (!host) return;
+    // Past laps
+    let html = '';
+    for (const l of state.laps){
+      html += `
+        <div class="row-between" style="padding:7px 4px;border-bottom:1px solid var(--border)">
+          <span style="flex:0 0 28px;font-weight:700;color:var(--accent)">${l.n}</span>
+          <span style="flex:1">${fmtMMSS(Math.round(l.durSec))}</span>
+          <span style="flex:1">${fmtPace(l.pace)}</span>
+          <span style="flex:1">${fmtPace(l.gap)}</span>
+          <span style="flex:0 0 44px;text-align:right">${l.avgHR||'—'}</span>
+          <span style="flex:0 0 52px;text-align:right">${l.peakLoad}</span>
+        </div>`;
+    }
+    host.innerHTML = html;
+    // Current in-progress lap
+    const last = state.gBuf[state.gBuf.length-1];
+    const lapEl = $('lapCur');
+    if (last && state.lapAgg.startT){
+      const durSec = (Date.now() - state.lapAgg.startT)/1000;
+      const distM  = last.dist - state.lapAgg.distStart;
+      const spd    = distM / Math.max(1, durSec);
+      const pace   = spd > 0 ? 1000/spd : 0;
+      lapEl.innerHTML = `
+        <span style="flex:0 0 28px;color:var(--text-2)">${state.lapIndex+1}</span>
+        <span style="flex:1;color:var(--text-2)">${fmtMMSS(Math.round(durSec))}</span>
+        <span style="flex:1;color:var(--text-2)">${fmtPace(pace)}</span>
+        <span style="flex:1;color:var(--text-2)">—</span>
+        <span style="flex:0 0 44px;text-align:right;color:var(--text-2)">${Math.round(state.hrCur)}</span>
+        <span style="flex:0 0 52px;text-align:right;color:var(--text-2)">${Math.round(state.lapAgg.peakLoad)}</span>`;
+      lapEl.style.fontStyle = 'normal';
+    }
   }
 
   function renderAltitude(){
@@ -1229,12 +1544,16 @@
 
   // ---------- BIOMECH ----------
   function renderBiomech(){
-    $('hrCur').textContent  = Math.round(state.hrCur);
-    $('voCur').textContent  = state.voCur.toFixed(1);
-    $('voAvg').textContent  = state.voAvg.toFixed(1);
-    $('gctCur').textContent = Math.round((state.gctCur.L + state.gctCur.R)/2) || 0;
-    $('gctAvg').textContent = Math.round((state.gctAvg.L + state.gctAvg.R)/2) || 0;
-    $('aSpeed').textContent = (state.speedAccel*3.6).toFixed(1);
+    $('hrCur').textContent    = Math.round(state.hrCur);
+    $('voCur').textContent    = state.voCur.toFixed(1);
+    $('voAvg').textContent    = state.voAvg.toFixed(1);
+    $('gctCur').textContent   = Math.round((state.gctCur.L + state.gctCur.R)/2) || 0;
+    $('gctAvg').textContent   = Math.round((state.gctAvg.L + state.gctAvg.R)/2) || 0;
+    $('gctAvgL').textContent  = state.gctAvg.L || 0;
+    $('gctAvgR').textContent  = state.gctAvg.R || 0;
+    $('bmCadence').textContent = state.cadence || 0;
+    $('bmStride').textContent  = state.strideLen ? state.strideLen.toFixed(2) : '0.00';
+    $('bmVR').textContent      = state.verticalRatio ? state.verticalRatio.toFixed(1) : '0.0';
     const z = hrZone(state.hrCur);
     $('hrZone').textContent = z.z;
 
@@ -1245,17 +1564,52 @@
     // Ground contact time bar chart
     renderGCTBars();
     // L/R GCT split from real per-foot values
-    const gctL = state.gctAvg.L;
-    const gctR = state.gctAvg.R;
+    const gctL = state.gctAvg.L, gctR = state.gctAvg.R;
     const tot = gctL + gctR;
     const pctL = tot ? Math.round(100*gctL/tot) : 50;
     $('gctLR').textContent = `${pctL}/${100-pctL}`;
+    $('gctBarL').style.width = pctL + '%';
+    $('gctBarR').style.width = (100-pctL) + '%';
+
+    renderTIZ();
 
     // Cross-map scatters
     renderScatter('scatHRspd', state.joinBuf, 'speed', 'hr', 'km/h', 'bpm', {xmin:0,xmax:15, ymin:50, ymax:200});
     renderScatter('scatHRvo',  state.joinBuf, 'vo',    'hr', 'cm',   'bpm', {xmin:3,xmax:13, ymin:50, ymax:200});
     renderScatter('scatHRalt', state.joinBuf, 'alt',   'hr', 'm',    'bpm', {ymin:50, ymax:200});
     renderScatter('scatHRdst', state.joinBuf, 'dist',  'hr', 'm',    'bpm', {ymin:50, ymax:200});
+  }
+
+  function renderTIZ(){
+    const tiz = state.timeInZone;
+    const keys = ['Z1','Z2','Z3','Z4','Z5'];
+    const labels = {Z1:'Z1 · warm', Z2:'Z2 · easy', Z3:'Z3 · aerobic', Z4:'Z4 · threshold', Z5:'Z5 · max'};
+    const colors = {Z1:'#9CA3AF', Z2:'#3B82F6', Z3:'#10B981', Z4:'#F59E0B', Z5:'#EF4444'};
+    const total = keys.reduce((a,k) => a + (tiz[k]||0), 0);
+    $('tizTotal').textContent = fmtMMSS(Math.round(total));
+    // widths on stacked bar
+    for (const k of keys){
+      const el = $('tiz'+k);
+      if (!el) continue;
+      const pct = total > 0 ? ((tiz[k]||0)/total)*100 : 0;
+      el.style.width = pct + '%';
+      el.style.transition = 'width 0.4s ease';
+    }
+    // rows
+    let html = '';
+    for (const k of keys){
+      const t = tiz[k] || 0;
+      const pct = total > 0 ? Math.round(t/total*100) : 0;
+      html += `
+        <div class="row-between" style="padding:5px 0;border-bottom:1px solid var(--border)">
+          <span style="display:flex;align-items:center;gap:8px">
+            <span style="width:10px;height:10px;border-radius:2px;background:${colors[k]};display:inline-block"></span>
+            <span style="color:var(--text-2)">${labels[k]}</span>
+          </span>
+          <span><strong>${fmtMMSS(Math.round(t))}</strong> <span style="color:var(--text-2)">· ${pct}%</span></span>
+        </div>`;
+    }
+    $('tizRows').innerHTML = html;
   }
 
   // generic line chart for time-series with a given data key
@@ -1769,6 +2123,15 @@
     });
   });
 
+  // Activity view toggle (Time / Distance)
+  document.querySelectorAll('#viewToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#viewToggle button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      state.activityView = b.dataset.view;
+    });
+  });
+
   // ---------- CONTROLS ----------
   $('btnStart').addEventListener('click', () => {
     // Reset session
@@ -1791,6 +2154,13 @@
     state.hrCur = 70; state.hrMax = 70; state.hrSum = 0; state.hrN = 0;
     state.altGain = 0; state.altLoss = 0; state.altMax = 0;
     state.lrL = 50; state.lrR = 50; state.lrLkpa = 0; state.lrRkpa = 0;
+    // New: pace/GAP/laps/TIZ/stride metrics
+    state.pace = 0; state.gap = 0;
+    state.lapIndex = 0; state.laps = [];
+    state.lapAgg = {startT:0, distStart:0, hrSum:0, hrN:0, peakLoad:0, elevStart:0, elevLast:0, elevGain:0};
+    state.timeInZone = {Z1:0,Z2:0,Z3:0,Z4:0,Z5:0};
+    state.lastZoneT = 0;
+    state.cadenceHistory = []; state.strideLen = 0; state.strideLenHistory = []; state.verticalRatio = 0;
     state.running = true;
   });
   $('btnPause').addEventListener('click', () => {
